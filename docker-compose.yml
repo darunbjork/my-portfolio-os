@@ -1,18 +1,33 @@
 # my-portfolio-os/docker-compose.yml
-version: '3.8' # Specify the Docker Compose file format version
 
 services:
-  web: # Define a service named 'web'
-    build: . # Build the Docker image from the Dockerfile in the current directory
+  web:
+    build: .
     ports:
-      - "3000:3000" # Map port 3000 on the host to port 3000 in the container
+      - "3000:3000"
     volumes:
-      - .:/app # Mount the current directory (host) to /app (container)
-      - /app/node_modules # Explicitly exclude node_modules from host mount to prevent issues
+      - .:/app
+      - /app/node_modules
     environment:
-      # Load environment variables from a .env file (Docker Compose feature)
-      # This tells Docker Compose to look for a .env file in the same directory
       - PORT=${PORT}
       - NODE_ENV=${NODE_ENV}
+      - MONGO_URI=${MONGO_URI} # Pass MONGO_URI from .env
+      - JWT_SECRET=${JWT_SECRET} # Pass JWT_SECRET from .env
     env_file:
-      - ./.env # Specify the .env file to load variables from
+      - ./.env
+    depends_on: # Ensure the 'db' service is running before starting 'web'
+      - db
+    command: ["npm", "start"] # Use npm start as the command, which we added yesterday
+
+  db: # Define a new service named 'db' for our MongoDB database
+    image: mongo:6 # Use the official mongo image from Docker Hub
+    ports:
+      - "27017:27017" # Map the default MongoDB port for host access (optional but useful)
+    volumes:
+      - mongo_data:/data/db # Mount a named volume to persist data
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root # Optional: A default username for admin
+      - MONGO_INITDB_ROOT_PASSWORD=password # Optional: A default password for admin (local dev only)
+
+volumes:
+  mongo_data: # Define the named volume to persist MongoDB data

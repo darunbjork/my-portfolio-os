@@ -1,9 +1,8 @@
-
 {
   "name": "my-portfolio-os",
   "version": "1.0.0",
   "description": "My Production Portfolio OS - A full-stack web development project",
-  "main": "src/server.js", 
+  "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,11 +15,13 @@
     "express"
   ],
   "author": "Your Name darunbjork@gmail.com",
-  "license": "MIT", 
+  "license": "MIT",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "helmet": "^7.1.0"
+    "helmet": "^7.1.0",
+    "mongoose": "^8.16.1"
   }
 }
