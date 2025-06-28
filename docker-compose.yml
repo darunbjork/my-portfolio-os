@@ -1,0 +1,18 @@
+# my-portfolio-os/docker-compose.yml
+version: '3.8' # Specify the Docker Compose file format version
+
+services:
+  web: # Define a service named 'web'
+    build: . # Build the Docker image from the Dockerfile in the current directory
+    ports:
+      - "3000:3000" # Map port 3000 on the host to port 3000 in the container
+    volumes:
+      - .:/app # Mount the current directory (host) to /app (container)
+      - /app/node_modules # Explicitly exclude node_modules from host mount to prevent issues
+    environment:
+      # Load environment variables from a .env file (Docker Compose feature)
+      # This tells Docker Compose to look for a .env file in the same directory
+      - PORT=${PORT}
+      - NODE_ENV=${NODE_ENV}
+    env_file:
+      - ./.env # Specify the .env file to load variables from
