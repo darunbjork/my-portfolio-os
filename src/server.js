@@ -7,6 +7,7 @@ const errorHandler = require('./middleware/errorHandler');
 const healthCheckRouter = require('./api/healthCheck');
 const authRouter = require('./api/auth'); // Import our new authentication router
 const { protect } = require('./middleware/auth'); // Import the protect middleware
+const projectRouter = require('./api/projects'); // Import the project router
 const connectDB = require('./db/connect');
 
 const app = express();
@@ -24,6 +25,7 @@ app.use(express.json());
 // in the future without breaking existing clients.
 app.use('/health', healthCheckRouter);
 app.use('/api/v1/auth', authRouter); // Mount the authentication router at /api/v1/auth
+app.use('/api/v1/projects', projectRouter); // Mount the project router at /api/v1/projects
 
 // Basic Route (for demonstration)
 app.get('/', (req, res) => {
