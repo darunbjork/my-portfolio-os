@@ -4,15 +4,13 @@ const express = require('express');
 const config = require('./config');
 const securityMiddleware = require('./middleware/security');
 const errorHandler = require('./middleware/errorHandler');
-const healthCheckRouter = require('./api/healthCheck'); 
-const connectDB = require('./db/connect'); // Import our database connection module
+const healthCheckRouter = require('./api/healthCheck');
+const authRouter = require('./api/auth'); // Import our new authentication router
+const connectDB = require('./db/connect');
 
-// Create an Express application instance
 const app = express();
 
 // --- Database Connection ---
-// Why: We connect to the database *before* starting the server.
-// If the database is not available, the server should not start.
 connectDB();
 
 // --- Global Middleware Setup ---
@@ -20,7 +18,11 @@ app.use(securityMiddleware);
 app.use(express.json());
 
 // --- Routes ---
+// Why: We're using versioning (`/api/v1`) for our API routes.
+// This is a best practice that allows for a smooth transition to a new API version
+// in the future without breaking existing clients.
 app.use('/health', healthCheckRouter);
+app.use('/api/v1/auth', authRouter); // Mount the authentication router at /api/v1/auth
 
 // Basic Route (for demonstration)
 app.get('/', (req, res) => {
