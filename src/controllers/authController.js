@@ -81,10 +81,7 @@ exports.getMe = async (req, res, next) => {
   // For now, we'll return a placeholder.
   res.status(200).json({
     status: 'success',
-    data: {
-      message: 'This will return the authenticated user\'s info.',
-      // We will add the actual user data here tomorrow after implementing middleware.
-    },
+    data: req.user, // The 'req.user' object is available thanks to the 'protect' middleware 
   });
 };
 

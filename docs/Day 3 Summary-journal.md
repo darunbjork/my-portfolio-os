@@ -26,3 +26,52 @@ After resolving volume configuration issues in docker-compose.yml, the Docker Co
 
 📈 What I Want to Improve Tomorrow
 I plan to implement middleware for protecting routes using JWT, build the /api/v1/auth/me endpoint, create a custom validation error class, and start writing unit tests for our controllers.
+
+---
+
+- darunbjork@MacBookAir my-portfolio-os % git status
+  On branch main
+  Your branch and 'origin/main' have diverged,
+  and have 2 and 1 different commits each, respectively.
+  (use "git pull" if you want to integrate the remote branch with yours)
+
+nothing to commit, working tree clean
+darunbjork@MacBookAir my-portfolio-os
+
+- my git status indicates that local main branch has diverged from the origin/main branch. This means:
+
+- You have 2 commits on your local main branch that are not yet on origin/main.
+- origin/main has 1 commit that is not yet on your local main branch.
+
+---
+
+- Here's the procedure I followed to resolve the Git branch divergence:
+
+  1.  Diagnose Divergence:
+
+      - I used git status to identify that your local main branch and origin/main had diverged, meaning both had unique commits not present on the other. The output indicated "Your
+        branch and 'origin/main' have diverged".
+
+  2.  Attempt Initial Pull (and identify need for strategy):
+
+      - My first attempt was a simple git pull.
+      - This failed because your Git configuration didn't have a default strategy for reconciling divergent branches, prompting a message like "fatal: Need to specify how to
+        reconcile divergent branches."
+
+  3.  Choose and Execute Rebase Strategy:
+
+      - To create a clean, linear history, I chose the rebase strategy. This method fetches remote changes and then reapplies your local commits on top of them.
+      - I executed the command: git pull --rebase
+      - Outcome: This successfully integrated the remote commit and re-applied your local commits. Your git status then showed "Your branch is ahead of 'origin/main' by 1 commit."
+        (or similar, indicating your local branch was now ahead).
+
+  4.  Push Rebased Changes:
+
+      - Since your local branch was now ahead of origin/main after the rebase, the next step was to push these changes to the remote repository.
+      - I executed the command: git push
+      - Outcome: This successfully updated origin/main with the rebased history.
+
+  5.  Final Verification:
+      - I ran git status one last time to confirm that your local main branch was "up to date with 'origin/main'", indicating the divergence was fully resolved.
+
+  This process ensures that your local and remote branches are synchronized with a clean, linear commit history.

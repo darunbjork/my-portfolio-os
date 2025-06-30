@@ -6,6 +6,7 @@ const securityMiddleware = require('./middleware/security');
 const errorHandler = require('./middleware/errorHandler');
 const healthCheckRouter = require('./api/healthCheck');
 const authRouter = require('./api/auth'); // Import our new authentication router
+const { protect } = require('./middleware/auth'); // Import the protect middleware
 const connectDB = require('./db/connect');
 
 const app = express();

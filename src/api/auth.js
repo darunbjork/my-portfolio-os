@@ -4,6 +4,7 @@
 
 const express = require('express');
 const { register, login, getMe } = require('../controllers/authController'); // Import the controller functions
+const { protect } = require('../middleware/auth'); // Import the protect middleware
 
 const router = express.Router(); // Create a new router instance
 
@@ -16,6 +17,6 @@ router.post('/login', login);
 
 // A GET request to /me will trigger the getMe function.
 // We'll protect this route with middleware later.
-router.get('/me', getMe);
+router.get('/me', protect, getMe);
 
 module.exports = router;
