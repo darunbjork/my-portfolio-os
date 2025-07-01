@@ -1,29 +1,53 @@
 // src/middleware/errorHandler.js
-// Why: Centralized error handling. This middleware ensures that all errors
-// in our application are caught and handled gracefully, sending a consistent
-// error response to the client and preventing sensitive information leaks.
+// Why: This is our central error handling middleware.
+// It catches errors from all routes and sends a structured, consistent JSON response.
+
+const ErrorResponse = require('../utils/errorResponse'); // Import our custom error class
 
 const errorHandler = (err, req, res, next) => {
-  console.error(err); // Log the error for debugging purposes
+  let error = { ...err }; // Copy the error object
+  error.message = err.message; // Preserve the original error message
 
-  // Determine the status code based on the error
-  // If the error has a 'statusCode' property, use it; otherwise, default to 500 (Internal Server Error)
-  const statusCode = err.statusCode || 500;
+  // Why: Log the error to the console for debugging.
+  console.error('Caught an error:', err.stack);
 
-  // Create a response object
-  const response = {
-    status: 'error',
-    message: err.message || 'An unexpected error occurred',
-  };
-
-  // In production, avoid sending detailed error messages to clients for security reasons.
-  // We're keeping it simple for now, but will enhance this later.
-  if (process.env.NODE_ENV === 'production' && statusCode === 500) {
-    response.message = 'Internal Server Error';
+  // Mongoose Bad ObjectId Error (e.g., GET /projects/12345)
+  // Why: Check for a CastError from Mongoose, which happens when an ID format is invalid.
+  if (err.name === 'CastError') {
+    const message = `Resource not found with id of ${err.value}`;
+    // Why: Create a new custom error instance for this specific Mongoose error.
+    error = new ErrorResponse(message, 404);
   }
 
-  // Send the error response
-  res.status(statusCode).json(response);
+  // Mongoose Validation Error (e.g., creating a project with no title)
+  // Why: Check for Mongoose validation errors.
+  if (err.name === 'ValidationError') {
+    // Why: Map over the error details to extract validation messages.
+    const messages = Object.values(err.errors).map((val) => val.message);
+    const message = `Validation error: ${messages.join(', ')}`;
+    error = new ErrorResponse(message, 400); // 400 Bad Request
+  }
+
+  // Mongoose Duplicate Key Error (e.g., registering with an existing email)
+  // Why: Check for MongoDB duplicate key errors (code 11000).
+  if (err.code === 11000) {
+    const message = 'Duplicate field value entered';
+    error = new ErrorResponse(message, 409); // 409 Conflict
+  }
+  
+  // Handle custom ErrorResponse instances
+  // Why: If the error is an instance of our custom class, use its statusCode.
+  if (err instanceof ErrorResponse) {
+    error.statusCode = err.statusCode;
+    error.message = err.message;
+  }
+
+  // Why: Send the final structured JSON response.
+  // We use the status code from our custom error or default to 500.
+  res.status(error.statusCode || 500).json({
+    status: 'error',
+    message: error.message || 'Server Error',
+  });
 };
 
 module.exports = errorHandler;
