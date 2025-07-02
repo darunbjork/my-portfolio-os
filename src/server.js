@@ -1,13 +1,14 @@
 // src/server.js
 
 const express = require('express');
+const cors = require('cors'); // Import the cors package
 const config = require('./config');
 const securityMiddleware = require('./middleware/security');
 const errorHandler = require('./middleware/errorHandler');
 const healthCheckRouter = require('./api/healthCheck');
-const authRouter = require('./api/auth'); // Import our new authentication router
-const { protect } = require('./middleware/auth'); // Import the protect middleware
-const projectRouter = require('./api/projects'); // Import the project router
+const authRouter = require('./api/auth');
+const projectRouter = require('./api/projects');
+const infoRouter = require('./api/info');
 const connectDB = require('./db/connect');
 
 const app = express();
@@ -16,16 +17,18 @@ const app = express();
 connectDB();
 
 // --- Global Middleware Setup ---
+// Why: We use the cors middleware to enable cross-origin requests.
+// In a production environment, you would specify the allowed origins.
+app.use(cors());
+
 app.use(securityMiddleware);
 app.use(express.json());
 
 // --- Routes ---
-// Why: We're using versioning (`/api/v1`) for our API routes.
-// This is a best practice that allows for a smooth transition to a new API version
-// in the future without breaking existing clients.
 app.use('/health', healthCheckRouter);
-app.use('/api/v1/auth', authRouter); // Mount the authentication router at /api/v1/auth
-app.use('/api/v1/projects', projectRouter); // Mount the project router at /api/v1/projects
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/projects', projectRouter);
+app.use('/api/v1', infoRouter);
 
 // Basic Route (for demonstration)
 app.get('/', (req, res) => {

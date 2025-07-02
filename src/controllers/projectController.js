@@ -95,7 +95,8 @@ exports.deleteProject = async (req, res, next) => {
 
     await project.deleteOne();
 
-    res.status(204).json({ status: 'success', data: null });
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).send(JSON.stringify({ status: 'success', message: 'Project deleted successfully' }));
   } catch (error) {
     next(error);
   }
