@@ -4,8 +4,8 @@
   "description": "My Production Portfolio OS - A full-stack web development project",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "test": "jest"
+    "start": "NODE_ENV=production node src/server.js",
+    "dev": "NODE_ENV=development nodemon src/server.js"
   },
   "keywords": [
     "mern",
@@ -19,14 +19,14 @@
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "helmet": "^7.1.0",
+    "dotenv": "^17.0.1",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.1"
   },
   "devDependencies": {
-    "jest": "^30.0.3",
+    "jest": "^30.0.4",
     "nodemon": "^3.1.10",
     "supertest": "^7.1.1"
   }
