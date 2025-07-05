@@ -38,6 +38,7 @@ app.get('/', (req, res) => {
 // --- Error Handling Middleware ---
 app.use(errorHandler);
 
+
 // --- Server Start ---
 const PORT = config.port;
 app.listen(PORT, () => {

@@ -7,7 +7,7 @@
 require('dotenv').config();
 
 const config = {
-  port: process.env.PORT || 3000,
+  port: process.env.PORT || 5000,
   env: process.env.NODE_ENV || 'development',
   mongoURI: process.env.MONGO_URI, // Added for MongoDB connection
   jwtSecret: process.env.JWT_SECRET, // Added for JWT signing
