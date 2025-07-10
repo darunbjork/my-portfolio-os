@@ -33,9 +33,10 @@ exports.getProject = async (req, res, next) => {
 
 // @desc    Create a new project
 // @route   POST /api/v1/projects
-// @access  Private (requires authentication)
+// @access  Private (Owner/Admin only - enforced by middleware)
 exports.createProject = async (req, res, next) => {
   try {
+    // Why: Associate the project with the authenticated user
     req.body.user = req.user.id;
 
     const project = await Project.create(req.body);
@@ -51,23 +52,18 @@ exports.createProject = async (req, res, next) => {
 
 // @desc    Update a project by ID
 // @route   PUT /api/v1/projects/:id
-// @access  Private (requires authentication & ownership)
+// @access  Private (Owner/Admin only - enforced by middleware)
 exports.updateProject = async (req, res, next) => {
   try {
-    let project = await Project.findById(req.params.id);
+    // Why: Authorization is now handled by middleware, so we can directly update
+    const project = await Project.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!project) {
       return next(new ErrorResponse(`Project not found with id of ${req.params.id}`, 404));
     }
-
-    if (project.user.toString() !== req.user.id) {
-      return next(new ErrorResponse('User is not authorized to update this project', 403));
-    }
-
-    project = await Project.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
 
     res.status(200).json({
       status: 'success',
@@ -80,7 +76,7 @@ exports.updateProject = async (req, res, next) => {
 
 // @desc    Delete a project by ID
 // @route   DELETE /api/v1/projects/:id
-// @access  Private (requires authentication & ownership)
+// @access  Private (Owner/Admin only - enforced by middleware)
 exports.deleteProject = async (req, res, next) => {
   try {
     const project = await Project.findById(req.params.id);
@@ -89,10 +85,7 @@ exports.deleteProject = async (req, res, next) => {
       return next(new ErrorResponse(`Project not found with id of ${req.params.id}`, 404));
     }
 
-    if (project.user.toString() !== req.user.id) {
-      return next(new ErrorResponse('User is not authorized to delete this project', 403));
-    }
-
+    // Why: Authorization is now handled by middleware, so we can directly delete
     await project.deleteOne();
 
     res.setHeader('Content-Type', 'application/json');

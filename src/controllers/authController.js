@@ -20,9 +20,27 @@ exports.register = async (req, res, next) => {
   }
 
   try {
+    // Why: Check if this is the first user registration (portfolio owner)
+    const existingUserCount = await User.countDocuments();
+    
+    // Why: Create user data with role assignment
+    const userData = {
+      email,
+      password,
+      // Why: First user becomes the portfolio owner, subsequent users are viewers
+      role: existingUserCount === 0 ? 'owner' : 'viewer'
+    };
+
     // Why: Create a new user document using our Mongoose model.
     // Mongoose will automatically hash the password via our 'pre-save' hook.
-    const user = await User.create({ email, password });
+    const user = await User.create(userData);
+
+    // Why: Log important role assignments for security auditing
+    if (userData.role === 'owner') {
+      console.log(`Portfolio owner account created: ${email}`);
+    } else {
+      console.log(`New viewer account created: ${email}`);
+    }
 
     // Why: Respond with a success message and a token.
     // Sending the token immediately allows the client to log in automatically.
@@ -85,6 +103,75 @@ exports.getMe = async (req, res, next) => {
   });
 };
 
+// @desc    Update user role (Owner only)
+// @route   PUT /api/v1/auth/users/:userId/role
+// @access  Private (Owner only)
+exports.updateUserRole = async (req, res, next) => {
+  const { role } = req.body;
+  const { userId } = req.params;
+
+  // Why: Validate the role value
+  if (!['owner', 'admin', 'viewer'].includes(role)) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Invalid role. Must be owner, admin, or viewer'
+    });
+  }
+
+  try {
+    // Why: Prevent demoting the last owner (system integrity)
+    if (role !== 'owner') {
+      const ownerCount = await User.countDocuments({ role: 'owner' });
+      const targetUser = await User.findById(userId);
+      
+      if (ownerCount === 1 && targetUser && targetUser.role === 'owner') {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Cannot change the role of the last remaining owner'
+        });
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { role },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+    }
+
+    console.log(`User role updated: ${user.email} -> ${role} (by: ${req.user.email})`);
+
+    res.status(200).json({
+      status: 'success',
+      data: user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get all users (Owner only)
+// @route   GET /api/v1/auth/users
+// @access  Private (Owner only)
+exports.getUsers = async (req, res, next) => {
+  try {
+    const users = await User.find().select('-password').sort('createdAt');
+    
+    res.status(200).json({
+      status: 'success',
+      count: users.length,
+      data: users
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // Why: A reusable function to create and send a JWT token in the response.
 // This prevents code duplication in our register and login functions.
@@ -97,5 +184,10 @@ const sendTokenResponse = (user, statusCode, res) => {
   res.status(statusCode).json({
     status: 'success',
     token,
+    user: {
+      id: user._id,
+      email: user.email,
+      role: user.role
+    }
   });
 };

@@ -1,22 +1,22 @@
 // src/api/auth.js
-// Why: This file defines the API routes for user authentication.
-// It uses an Express Router to keep authentication-related routes together.
+// Why: This file defines the API routes for authentication.
+// It uses an Express Router to keep our server.js file clean and organized.
 
 const express = require('express');
-const { register, login, getMe } = require('../controllers/authController'); // Import the controller functions
-const { protect } = require('../middleware/auth'); // Import the protect middleware
+const { register, login, getMe, updateUserRole, getUsers } = require('../controllers/authController');
+const { protect, requireOwner } = require('../middleware/auth');
 
-const router = express.Router(); // Create a new router instance
+const router = express.Router();
 
-// Why: Use our controller functions to handle requests for these routes.
-// A POST request to /register will trigger the register function.
+// Public authentication routes
 router.post('/register', register);
-
-// A POST request to /login will trigger the login function.
 router.post('/login', login);
 
-// A GET request to /me will trigger the getMe function.
-// We'll protect this route with middleware later.
+// Private routes (require authentication)
 router.get('/me', protect, getMe);
+
+// Owner-only routes for user management
+router.get('/users', protect, requireOwner, getUsers);
+router.put('/users/:userId/role', protect, requireOwner, updateUserRole);
 
 module.exports = router;

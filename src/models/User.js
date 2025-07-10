@@ -29,6 +29,15 @@ const UserSchema = new mongoose.Schema({
     select: false, // Why: 'select: false' ensures the password field is not returned by default
                    // in query results. This is a security best practice.
   },
+  // Why: Role-based access control for portfolio security
+  // 'owner' - Portfolio owner (full access to create/modify content)
+  // 'admin' - Administrative access (can help manage content)  
+  // 'viewer' - Read-only access (default for new registrations)
+  role: {
+    type: String,
+    enum: ['owner', 'admin', 'viewer'],
+    default: 'viewer', // Why: New users get read-only access by default for security
+  },
   // Why: createdAt and updatedAt fields are automatically managed by Mongoose.
   // They are useful for auditing and tracking record lifecycles.
 }, { timestamps: true });
