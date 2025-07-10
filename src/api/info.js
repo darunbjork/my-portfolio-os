@@ -12,7 +12,7 @@ const {
   updateExperience,
   deleteExperience,
 } = require('../controllers/infoController');
-const { protect } = require('../middleware/auth');
+const { protect, requireOwnerOrAdmin } = require('../middleware/auth');
 const advancedResults = require('../middleware/advancedResults');
 const Skill = require('../models/Skill');
 const Experience = require('../models/Experience');
@@ -22,19 +22,19 @@ const router = express.Router();
 // --- Skills Routes ---
 router.route('/skills')
   .get(advancedResults(Skill), getSkills) // Public read access
-  .post(protect, createSkill);             // Private write access
+  .post(protect, requireOwnerOrAdmin, createSkill); // Only owner/admin can create skills
 
 router.route('/skills/:id')
-  .put(protect, updateSkill)
-  .delete(protect, deleteSkill);
+  .put(protect, requireOwnerOrAdmin, updateSkill)   // Only owner/admin can update skills
+  .delete(protect, requireOwnerOrAdmin, deleteSkill); // Only owner/admin can delete skills
 
 // --- Experience Routes ---
 router.route('/experience')
   .get(advancedResults(Experience), getExperiences) // Public read access
-  .post(protect, createExperience);                  // Private write access
+  .post(protect, requireOwnerOrAdmin, createExperience); // Only owner/admin can create experience
 
 router.route('/experience/:id')
-  .put(protect, updateExperience)
-  .delete(protect, deleteExperience);
+  .put(protect, requireOwnerOrAdmin, updateExperience)   // Only owner/admin can update experience
+  .delete(protect, requireOwnerOrAdmin, deleteExperience); // Only owner/admin can delete experience
 
 module.exports = router;

@@ -68,3 +68,67 @@ exports.protect = async (req, res, next) => {
     next(error);
   }
 };
+
+// Why: Role-based authorization middleware to restrict access based on user roles
+// This ensures only users with the required roles can access certain routes
+exports.authorize = (...roles) => {
+  return (req, res, next) => {
+    // Why: Check if user is attached to request (should be done by protect middleware first)
+    if (!req.user) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Authentication required before authorization check',
+      });
+    }
+
+    // Why: Check if user's role is in the allowed roles array
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        status: 'error',
+        message: `Access denied. Required role(s): ${roles.join(', ')}. Your role: ${req.user.role}`,
+      });
+    }
+
+    next();
+  };
+};
+
+// Why: Specific middleware for portfolio owner/admin access
+// This is for operations that should only be performed by the portfolio owner or admin
+exports.requireOwnerOrAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'Authentication required',
+    });
+  }
+
+  if (!['owner', 'admin'].includes(req.user.role)) {
+    return res.status(403).json({
+      status: 'error',
+      message: 'Access denied. This operation requires owner or admin privileges.',
+    });
+  }
+
+  next();
+};
+
+// Why: Middleware specifically for portfolio owner access only
+// This ensures only the portfolio owner can perform certain critical operations
+exports.requireOwner = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'Authentication required',
+    });
+  }
+
+  if (req.user.role !== 'owner') {
+    return res.status(403).json({
+      status: 'error',
+      message: 'Access denied. This operation requires portfolio owner privileges.',
+    });
+  }
+
+  next();
+};

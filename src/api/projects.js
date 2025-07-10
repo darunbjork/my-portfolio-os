@@ -11,7 +11,7 @@ const {
   updateProject,
   deleteProject,
 } = require('../controllers/projectController');
-const { protect } = require('../middleware/auth');
+const { protect, requireOwnerOrAdmin } = require('../middleware/auth');
 const advancedResults = require('../middleware/advancedResults'); // Import the new middleware
 const Project = require('../models/Project'); // Import the Project model for the middleware
 
@@ -22,8 +22,11 @@ const router = express.Router();
 // We pass the Project model and the population option.
 router.route('/')
   .get(advancedResults(Project, { path: 'user', select: 'email' }), getProjects)
-  .post(protect, createProject);
+  .post(protect, requireOwnerOrAdmin, createProject); // Only owner/admin can create projects
 
-router.route('/:id').get(getProject).put(protect, updateProject).delete(protect, deleteProject);
+router.route('/:id')
+  .get(getProject)
+  .put(protect, requireOwnerOrAdmin, updateProject)   // Only owner/admin can update projects
+  .delete(protect, requireOwnerOrAdmin, deleteProject); // Only owner/admin can delete projects
 
 module.exports = router;

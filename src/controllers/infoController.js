@@ -17,7 +17,7 @@ exports.getSkills = async (req, res, next) => {
 
 // @desc    Create a new skill
 // @route   POST /api/v1/skills
-// @access  Private
+// @access  Private (Owner/Admin only - enforced by middleware)
 exports.createSkill = async (req, res, next) => {
   try {
     req.body.user = req.user.id;
@@ -30,14 +30,19 @@ exports.createSkill = async (req, res, next) => {
 
 // @desc    Update a skill by ID
 // @route   PUT /api/v1/skills/:id
-// @access  Private (requires ownership)
+// @access  Private (Owner/Admin only - enforced by middleware)
 exports.updateSkill = async (req, res, next) => {
   try {
-    let skill = await Skill.findById(req.params.id);
-    if (!skill) return next(new ErrorResponse(`Skill not found with id of ${req.params.id}`, 404));
-    if (skill.user.toString() !== req.user.id) return next(new ErrorResponse('User is not authorized to update this skill', 403));
+    // Why: Authorization is now handled by middleware, so we can directly update
+    const skill = await Skill.findByIdAndUpdate(req.params.id, req.body, { 
+      new: true, 
+      runValidators: true 
+    });
 
-    skill = await Skill.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!skill) {
+      return next(new ErrorResponse(`Skill not found with id of ${req.params.id}`, 404));
+    }
+
     res.status(200).json({ status: 'success', data: skill });
   } catch (error) {
     next(error);
@@ -46,12 +51,16 @@ exports.updateSkill = async (req, res, next) => {
 
 // @desc    Delete a skill by ID
 // @route   DELETE /api/v1/skills/:id
-// @access  Private (requires ownership)
+// @access  Private (Owner/Admin only - enforced by middleware)
 exports.deleteSkill = async (req, res, next) => {
   try {
     const skill = await Skill.findById(req.params.id);
-    if (!skill) return next(new ErrorResponse(`Skill not found with id of ${req.params.id}`, 404));
-    if (skill.user.toString() !== req.user.id) return next(new ErrorResponse('User is not authorized to delete this skill', 403));
+
+    if (!skill) {
+      return next(new ErrorResponse(`Skill not found with id of ${req.params.id}`, 404));
+    }
+
+    // Why: Authorization is now handled by middleware, so we can directly delete
     await skill.deleteOne();
     res.status(204).json({ status: 'success', data: null });
   } catch (error) {
@@ -70,7 +79,7 @@ exports.getExperiences = async (req, res, next) => {
 
 // @desc    Create a new experience
 // @route   POST /api/v1/experience
-// @access  Private
+// @access  Private (Owner/Admin only - enforced by middleware)
 exports.createExperience = async (req, res, next) => {
   try {
     req.body.user = req.user.id;
@@ -83,14 +92,19 @@ exports.createExperience = async (req, res, next) => {
 
 // @desc    Update an experience by ID
 // @route   PUT /api/v1/experience/:id
-// @access  Private (requires ownership)
+// @access  Private (Owner/Admin only - enforced by middleware)
 exports.updateExperience = async (req, res, next) => {
   try {
-    let experience = await Experience.findById(req.params.id);
-    if (!experience) return next(new ErrorResponse(`Experience not found with id of ${req.params.id}`, 404));
-    if (experience.user.toString() !== req.user.id) return next(new ErrorResponse('User is not authorized to update this experience', 403));
+    // Why: Authorization is now handled by middleware, so we can directly update
+    const experience = await Experience.findByIdAndUpdate(req.params.id, req.body, { 
+      new: true, 
+      runValidators: true 
+    });
 
-    experience = await Experience.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!experience) {
+      return next(new ErrorResponse(`Experience not found with id of ${req.params.id}`, 404));
+    }
+
     res.status(200).json({ status: 'success', data: experience });
   } catch (error) {
     next(error);
@@ -99,12 +113,16 @@ exports.updateExperience = async (req, res, next) => {
 
 // @desc    Delete an experience by ID
 // @route   DELETE /api/v1/experience/:id
-// @access  Private (requires ownership)
+// @access  Private (Owner/Admin only - enforced by middleware)
 exports.deleteExperience = async (req, res, next) => {
   try {
     const experience = await Experience.findById(req.params.id);
-    if (!experience) return next(new ErrorResponse(`Experience not found with id of ${req.params.id}`, 404));
-    if (experience.user.toString() !== req.user.id) return next(new ErrorResponse('User is not authorized to delete this experience', 403));
+
+    if (!experience) {
+      return next(new ErrorResponse(`Experience not found with id of ${req.params.id}`, 404));
+    }
+
+    // Why: Authorization is now handled by middleware, so we can directly delete
     await experience.deleteOne();
     res.status(204).json({ status: 'success', data: null });
   } catch (error) {
