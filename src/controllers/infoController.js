@@ -106,6 +106,26 @@ exports.getExperiences = async (req, res, next) => {
   res.status(200).json(res.advancedResults);
 };
 
+// @desc    Get single experience
+// @route   GET /api/v1/experience/:id
+// @access  Public
+exports.getExperience = async (req, res, next) => {
+  try {
+    const experience = await Experience.findById(req.params.id);
+
+    if (!experience) {
+      return next(new ErrorResponse(`Experience not found with id of ${req.params.id}`, 404));
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: experience,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Create a new experience
 // @route   POST /api/v1/experience
 // @access  Private (Owner/Admin only - enforced by middleware)

@@ -9,6 +9,7 @@ const {
   updateSkill,
   deleteSkill,
   getExperiences,
+  getExperience,
   createExperience,
   updateExperience,
   deleteExperience,
@@ -36,6 +37,7 @@ router.route('/experience')
   .post(protect, requireOwnerOrAdmin, createExperience); // Only owner/admin can create experience
 
 router.route('/experience/:id')
+  .get(getExperience)
   .put(protect, requireOwnerOrAdmin, updateExperience)   // Only owner/admin can update experience
   .delete(protect, requireOwnerOrAdmin, deleteExperience); // Only owner/admin can delete experience
 
