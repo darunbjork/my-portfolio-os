@@ -19,11 +19,10 @@ node_modules/
 .env.development
 .env.production
 
-
 # Test scripts (local only)
 test_auth_errors.js
 
-# Docker ignore
-.dockerignore
-
-.SEC
+# Utility scripts (local development only)
+promote_to_owner.js
+seed_data.js
+CRUD_FIX_GUIDE.md
