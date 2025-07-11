@@ -15,6 +15,7 @@ let token;
 let projectId;
 
 beforeAll(async () => {
+  console.log('Project Test MONGO_URI:', process.env.MONGO_URI);
   const url = process.env.MONGO_URI;
   await mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -37,8 +38,21 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await mongoose.connection.db.dropDatabase();
+  if (mongoose.connection.db) {
+    await mongoose.connection.db.dropDatabase();
+  }
   await mongoose.connection.close();
+});
+
+beforeEach(async () => {
+  await User.deleteMany({});
+  await Project.deleteMany({});
+});
+
+afterEach(async () => {
+  jest.setTimeout(10000); // Increase timeout for this hook
+  await User.deleteMany({});
+  await Project.deleteMany({});
 });
 
 describe('Project CRUD Operations', () => {
