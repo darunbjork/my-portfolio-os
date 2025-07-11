@@ -55,7 +55,7 @@ const errorHandler = (err, req, res, next) => {
 
     const field = Object.keys(err.keyValue)[0];
     const value = err.keyValue[field];
-    const message = `Duplicate field value: ${field} with value '${value}' already exists.`;
+    message = `Duplicate field value: ${field} with value '${value}' already exists.`;
     console.log('Handled as Duplicate Key Error. Sending JSON response directly.');
     return res.status(409).json({
       status: 'error',
