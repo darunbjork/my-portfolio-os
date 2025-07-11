@@ -29,23 +29,32 @@ exports.getProfile = async (req, res, next) => {
 // @access  Private
 exports.createProfile = async (req, res, next) => {
   try {
+    console.log('createProfile: Received request.');
+    console.log('createProfile: req.user:', req.user);
+    console.log('createProfile: req.body:', req.body);
+
     // Check if profile already exists for this user
     let profile = await Profile.findOne({ user: req.user.id });
 
     if (profile) {
+      console.log('createProfile: Profile already exists.');
       return next(new ErrorResponse('Profile already exists for this user. Use PUT to update.', 400));
     }
 
     // Add user to req.body
     req.body.user = req.user.id;
+    console.log('createProfile: req.body after adding user:', req.body);
 
     profile = await Profile.create(req.body);
+    console.log('createProfile: Profile created successfully.');
 
     res.status(201).json({
       success: true,
       data: profile
     });
   } catch (error) {
+    console.error('createProfile: Error caught:', error.message);
+    console.error('createProfile: Error details:', error);
     next(error);
   }
 };
