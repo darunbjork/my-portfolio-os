@@ -1,47 +1,35 @@
-// src/server.js
-
 const express = require('express');
-const cors = require('cors'); // Import the cors package
-const config = require('./config');
-const securityMiddleware = require('./middleware/security');
-const errorHandler = require('./middleware/errorHandler');
-const healthCheckRouter = require('./api/healthCheck');
-const authRouter = require('./api/auth');
-const projectRouter = require('./api/projects');
-const infoRouter = require('./api/info');
-const connectDB = require('./db/connect');
+const mongoose = require('mongoose');
+const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 
-// --- Database Connection ---
-connectDB();
-
-// --- Global Middleware Setup ---
-// Why: We use the cors middleware to enable cross-origin requests.
-// In a production environment, you would specify the allowed origins.
-app.use(cors());
-
-app.use(securityMiddleware);
+// Middleware
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
 
-// --- Routes ---
-app.use('/health', healthCheckRouter);
-app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/projects', projectRouter);
-app.use('/api/v1', infoRouter);
-
-// Basic Route (for demonstration)
-app.get('/', (req, res) => {
-  res.send('Hello World from My Production Portfolio OS!');
+// Health check endpoint (important for Render)
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV 
+  });
 });
 
-// --- Error Handling Middleware ---
-app.use(errorHandler);
+// Your routes here
+// app.use('/api', yourRoutes);
 
+// Database connection
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB Connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
-// --- Server Start ---
-const PORT = config.port;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT} in ${config.env} environment`);
-  console.log(`Access it at: http://localhost:${PORT}`);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
 });
