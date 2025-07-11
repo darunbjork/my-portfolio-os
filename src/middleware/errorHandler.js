@@ -31,8 +31,32 @@ const errorHandler = (err, req, res, next) => {
   // Mongoose Duplicate Key Error (e.g., registering with an existing email)
   // Why: Check for MongoDB duplicate key errors (code 11000).
   if (err.code === 11000) {
-    const message = 'Duplicate field value entered';
+    // Why: Provide specific, user-friendly messages for different duplicate fields
+    let message = 'Duplicate field value entered';
+    
+    // Check if it's a duplicate email (most common case)
+    if (err.message.includes('email')) {
+      message = 'An account with this email address already exists. Please use a different email or try logging in instead.';
+    } else if (err.message.includes('username')) {
+      message = 'This username is already taken. Please choose a different username.';
+    } else {
+      // Extract the field name from the error for other cases
+      const field = Object.keys(err.keyPattern)[0];
+      message = `An account with this ${field} already exists. Please use a different ${field}.`;
+    }
+    
     error = new ErrorResponse(message, 409); // 409 Conflict
+  }
+
+  // JWT Errors
+  if (err.name === 'JsonWebTokenError') {
+    const message = 'Invalid token. Please log in again.';
+    error = new ErrorResponse(message, 401);
+  }
+
+  if (err.name === 'TokenExpiredError') {
+    const message = 'Your session has expired. Please log in again.';
+    error = new ErrorResponse(message, 401);
   }
   
   // Handle custom ErrorResponse instances
@@ -47,6 +71,13 @@ const errorHandler = (err, req, res, next) => {
   res.status(error.statusCode || 500).json({
     status: 'error',
     message: error.message || 'Server Error',
+    // Include helpful suggestions for common errors
+    ...(error.statusCode === 409 && { 
+      suggestion: 'If you already have an account, try logging in instead of registering.'
+    }),
+    ...(error.statusCode === 401 && { 
+      suggestion: 'Please check your credentials and try again.'
+    })
   });
 };
 
