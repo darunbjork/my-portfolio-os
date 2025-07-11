@@ -47,10 +47,12 @@ app.get('/', (req, res) => {
 const authRouter = require('./api/auth');
 const projectRouter = require('./api/projects');
 const infoRouter = require('./api/info');
+const profileRouter = require('./api/profile');
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/projects', projectRouter);
 app.use('/api/v1', infoRouter);
+app.use('/api/v1/profile', profileRouter);
 
 // Database connection
 mongoose.connect(process.env.MONGO_URI)
