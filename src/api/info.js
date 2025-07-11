@@ -4,10 +4,12 @@
 const express = require('express');
 const {
   getSkills,
+  getSkill,
   createSkill,
   updateSkill,
   deleteSkill,
   getExperiences,
+  getExperience,
   createExperience,
   updateExperience,
   deleteExperience,
@@ -25,6 +27,7 @@ router.route('/skills')
   .post(protect, requireOwnerOrAdmin, createSkill); // Only owner/admin can create skills
 
 router.route('/skills/:id')
+  .get(getSkill)
   .put(protect, requireOwnerOrAdmin, updateSkill)   // Only owner/admin can update skills
   .delete(protect, requireOwnerOrAdmin, deleteSkill); // Only owner/admin can delete skills
 
@@ -34,6 +37,7 @@ router.route('/experience')
   .post(protect, requireOwnerOrAdmin, createExperience); // Only owner/admin can create experience
 
 router.route('/experience/:id')
+  .get(getExperience)
   .put(protect, requireOwnerOrAdmin, updateExperience)   // Only owner/admin can update experience
   .delete(protect, requireOwnerOrAdmin, deleteExperience); // Only owner/admin can delete experience
 
