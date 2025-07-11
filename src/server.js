@@ -21,8 +21,19 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Your routes here
-// app.use('/api', yourRoutes);
+// Basic Root Route
+app.get('/', (req, res) => {
+  res.send('Welcome to My Production Portfolio OS Backend!');
+});
+
+// API Routes
+const authRouter = require('./api/auth');
+const projectRouter = require('./api/projects');
+const infoRouter = require('./api/info');
+
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/projects', projectRouter);
+app.use('/api/v1', infoRouter);
 
 // Database connection
 mongoose.connect(process.env.MONGO_URI)
