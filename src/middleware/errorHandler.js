@@ -28,7 +28,7 @@ const errorHandler = (err, req, res, next) => {
     error = new ErrorResponse(message, 400); // 400 Bad Request
   }
 
-  // Mongoose Duplicate Key Error (e.g., registering with an existing email)  // Why: Check for MongoDB duplicate key errors (code 11000).  if (err.code === 11000) {    const field = Object.keys(err.keyValue)[0];    const value = err.keyValue[field];    const message = `Duplicate field value: ${field} with value '${value}' already exists.`;    error = new ErrorResponse(message, 409); // 409 Conflict  }
+  // Mongoose Duplicate Key Error (e.g., registering with an existing email)  // Why: Check for MongoDB duplicate key errors (code 11000).  if (err.code === 11000) {    const field = Object.keys(err.keyValue)[0];    const value = err.keyValue[field];    const message = `Duplicate field value: ${field} with value '${value}' already exists.`;    return res.status(409).json({      status: 'error',      message: message    });  }
   
   // Handle custom ErrorResponse instances
   // Why: If the error is an instance of our custom class, use its statusCode.
