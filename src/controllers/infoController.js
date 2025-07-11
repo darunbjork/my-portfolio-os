@@ -20,10 +20,19 @@ exports.getSkills = async (req, res, next) => {
 // @access  Private (Owner/Admin only - enforced by middleware)
 exports.createSkill = async (req, res, next) => {
   try {
-    req.body.user = req.user.id;
+    console.log('Inside createSkill function');
+    console.log('req.user:', req.user);
+    if (req.user && req.user.id) {
+      req.body.user = req.user.id;
+      console.log('req.body.user set to:', req.body.user);
+    } else {
+      console.log('req.user or req.user.id is undefined.');
+      return next(new ErrorResponse('Not authorized to create skill: User not found or ID missing', 401));
+    }
     const skill = await Skill.create(req.body);
     res.status(201).json({ status: 'success', data: skill });
   } catch (error) {
+    console.error('Error in createSkill:', error.message);
     next(error);
   }
 };
