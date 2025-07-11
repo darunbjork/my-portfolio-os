@@ -5,6 +5,9 @@
 const ErrorResponse = require('../utils/errorResponse'); // Import our custom error class
 
 const errorHandler = (err, req, res, next) => {
+  console.log('--- Entering errorHandler middleware ---');
+  console.log('Original error:', err);
+
   let error = { ...err }; // Copy the error object
   error.message = err.message; // Preserve the original error message
 
@@ -17,6 +20,7 @@ const errorHandler = (err, req, res, next) => {
     const message = `Resource not found with id of ${err.value}`;
     // Why: Create a new custom error instance for this specific Mongoose error.
     error = new ErrorResponse(message, 404);
+    console.log('Handled as CastError:', error);
   }
 
   // Mongoose Validation Error (e.g., creating a project with no title)
@@ -26,6 +30,7 @@ const errorHandler = (err, req, res, next) => {
     const messages = Object.values(err.errors).map((val) => val.message);
     const validationMessage = `Validation error: ${messages.join(', ')}`;
     error = new ErrorResponse(validationMessage, 400); // 400 Bad Request
+    console.log('Handled as ValidationError:', error);
   }
 
   // Mongoose Duplicate Key Error (e.g., registering with an existing email)
@@ -46,17 +51,20 @@ const errorHandler = (err, req, res, next) => {
     }
     
     error = new ErrorResponse(duplicateMessage, 409); // 409 Conflict
+    console.log('Handled as Duplicate Key Error:', error);
   }
 
   // JWT Errors
   if (err.name === 'JsonWebTokenError') {
     const jwtMessage = 'Invalid token. Please log in again.';
     error = new ErrorResponse(jwtMessage, 401);
+    console.log('Handled as JWT Error:', error);
   }
 
   if (err.name === 'TokenExpiredError') {
     const expiredMessage = 'Your session has expired. Please log in again.';
     error = new ErrorResponse(expiredMessage, 401);
+    console.log('Handled as Token Expired Error:', error);
   }
   
   // Handle custom ErrorResponse instances
@@ -64,10 +72,17 @@ const errorHandler = (err, req, res, next) => {
   if (err instanceof ErrorResponse) {
     error.statusCode = err.statusCode;
     error.message = err.message;
+    console.log('Handled as custom ErrorResponse:', error);
   }
 
   // Why: Send the final structured JSON response.
   // We use the status code from our custom error or default to 500.
+  console.log('Sending final response:', { 
+    status: 'error', 
+    message: error.message || 'Server Error', 
+    statusCode: error.statusCode || 500 
+  });
+
   res.status(error.statusCode || 500).json({
     status: 'error',
     message: error.message || 'Server Error',

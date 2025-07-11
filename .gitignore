@@ -19,5 +19,11 @@ node_modules/
 .env.development
 .env.production
 
+
 # Test scripts (local only)
 test_auth_errors.js
+
+# Docker ignore
+.dockerignore
+
+.SEC

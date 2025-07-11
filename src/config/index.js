@@ -4,7 +4,9 @@
 // This is crucial for different environments (development, production).
 // Why: Centralized configuration with environment variable fallbacks.
 
-require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 
 const config = {
   port: process.env.PORT || 5000,
