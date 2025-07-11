@@ -15,6 +15,26 @@ exports.getSkills = async (req, res, next) => {
   res.status(200).json(res.advancedResults);
 };
 
+// @desc    Get single skill
+// @route   GET /api/v1/skills/:id
+// @access  Public
+exports.getSkill = async (req, res, next) => {
+  try {
+    const skill = await Skill.findById(req.params.id);
+
+    if (!skill) {
+      return next(new ErrorResponse(`Skill not found with id of ${req.params.id}`, 404));
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: skill,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Create a new skill
 // @route   POST /api/v1/skills
 // @access  Private (Owner/Admin only - enforced by middleware)
