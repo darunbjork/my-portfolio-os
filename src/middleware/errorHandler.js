@@ -24,39 +24,39 @@ const errorHandler = (err, req, res, next) => {
   if (err.name === 'ValidationError') {
     // Why: Map over the error details to extract validation messages.
     const messages = Object.values(err.errors).map((val) => val.message);
-    const message = `Validation error: ${messages.join(', ')}`;
-    error = new ErrorResponse(message, 400); // 400 Bad Request
+    const validationMessage = `Validation error: ${messages.join(', ')}`;
+    error = new ErrorResponse(validationMessage, 400); // 400 Bad Request
   }
 
   // Mongoose Duplicate Key Error (e.g., registering with an existing email)
   // Why: Check for MongoDB duplicate key errors (code 11000).
   if (err.code === 11000) {
     // Why: Provide specific, user-friendly messages for different duplicate fields
-    let message = 'Duplicate field value entered';
+    let duplicateMessage = 'Duplicate field value entered';
     
     // Check if it's a duplicate email (most common case)
     if (err.message.includes('email')) {
-      message = 'An account with this email address already exists. Please use a different email or try logging in instead.';
+      duplicateMessage = 'An account with this email address already exists. Please use a different email or try logging in instead.';
     } else if (err.message.includes('username')) {
-      message = 'This username is already taken. Please choose a different username.';
+      duplicateMessage = 'This username is already taken. Please choose a different username.';
     } else {
       // Extract the field name from the error for other cases
       const field = Object.keys(err.keyPattern)[0];
-      message = `An account with this ${field} already exists. Please use a different ${field}.`;
+      duplicateMessage = `An account with this ${field} already exists. Please use a different ${field}.`;
     }
     
-    error = new ErrorResponse(message, 409); // 409 Conflict
+    error = new ErrorResponse(duplicateMessage, 409); // 409 Conflict
   }
 
   // JWT Errors
   if (err.name === 'JsonWebTokenError') {
-    const message = 'Invalid token. Please log in again.';
-    error = new ErrorResponse(message, 401);
+    const jwtMessage = 'Invalid token. Please log in again.';
+    error = new ErrorResponse(jwtMessage, 401);
   }
 
   if (err.name === 'TokenExpiredError') {
-    const message = 'Your session has expired. Please log in again.';
-    error = new ErrorResponse(message, 401);
+    const expiredMessage = 'Your session has expired. Please log in again.';
+    error = new ErrorResponse(expiredMessage, 401);
   }
   
   // Handle custom ErrorResponse instances
