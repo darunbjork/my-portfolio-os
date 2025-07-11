@@ -1,18 +1,27 @@
-# my-portfolio-os/.gitignore
-# Node.js
-node_modules/
-npm-debug.log
-.env
-
 # Logs
-logs/
-*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
-# Editor directories and files
-.idea/
-.vscode/
-*.swp
-.DS_Store
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+
+
+# Test scripts (local only)
+test_auth_errors.js
 
 # Docker ignore
 .dockerignore

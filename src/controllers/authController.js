@@ -16,16 +16,50 @@ exports.register = async (req, res, next) => {
   // Why: Basic validation to ensure both fields are provided.
   // This is the first line of defense against incomplete requests.
   if (!email || !password) {
-    return res.status(400).json({ status: 'error', message: 'Please provide both email and password' });
+    return res.status(400).json({ 
+      status: 'error', 
+      message: 'Please provide both email and password',
+      suggestion: 'Both email and password are required for registration.'
+    });
+  }
+
+  // Why: Validate email format
+  const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ 
+      status: 'error', 
+      message: 'Please provide a valid email address',
+      suggestion: 'Make sure your email is in the correct format (e.g., user@example.com).'
+    });
+  }
+
+  // Why: Validate password length
+  if (password.length < 6) {
+    return res.status(400).json({ 
+      status: 'error', 
+      message: 'Password must be at least 6 characters long',
+      suggestion: 'Choose a stronger password with at least 6 characters.'
+    });
   }
 
   try {
+    // Why: Check if user already exists BEFORE attempting to create
+    // This provides immediate, clear feedback instead of waiting for MongoDB error
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(409).json({
+        status: 'error',
+        message: 'An account with this email address already exists.',
+        suggestion: 'If this is your account, please try logging in instead of registering.'
+      });
+    }
+
     // Why: Check if this is the first user registration (portfolio owner)
     const existingUserCount = await User.countDocuments();
     
     // Why: Create user data with role assignment
     const userData = {
-      email,
+      email: email.toLowerCase(), // Normalize email to lowercase
       password,
       // Why: First user becomes the portfolio owner, subsequent users are viewers
       role: existingUserCount === 0 ? 'owner' : 'viewer'
@@ -46,7 +80,7 @@ exports.register = async (req, res, next) => {
     // Sending the token immediately allows the client to log in automatically.
     sendTokenResponse(user, 201, res);
   } catch (error) {
-    // Why: If user creation fails (e.g., email is not unique), we pass the error
+    // Why: If user creation fails (e.g., unexpected database error), we pass the error
     // to our central error handling middleware.
     // The next() call is crucial here.
     next(error);
@@ -61,18 +95,36 @@ exports.login = async (req, res, next) => {
 
   // Why: Basic validation for login credentials.
   if (!email || !password) {
-    return res.status(400).json({ status: 'error', message: 'Please provide both email and password' });
+    return res.status(400).json({ 
+      status: 'error', 
+      message: 'Please provide both email and password',
+      suggestion: 'Both email and password are required to log in.'
+    });
+  }
+
+  // Why: Validate email format
+  const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ 
+      status: 'error', 
+      message: 'Please provide a valid email address',
+      suggestion: 'Make sure your email is in the correct format (e.g., user@example.com).'
+    });
   }
 
   try {
     // Why: Find the user by email, and explicitly select the password.
     // Remember, we set 'select: false' on the password field in the schema,
     // so we must explicitly ask for it here for comparison.
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
 
     // Why: Check if the user exists.
     if (!user) {
-      return res.status(401).json({ status: 'error', message: 'Invalid credentials' });
+      return res.status(401).json({ 
+        status: 'error', 
+        message: 'No account found with this email address',
+        suggestion: 'Please check your email or register for a new account.'
+      });
     }
 
     // Why: Use our Mongoose instance method to compare the submitted password
@@ -80,7 +132,11 @@ exports.login = async (req, res, next) => {
     const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {
-      return res.status(401).json({ status: 'error', message: 'Invalid credentials' });
+      return res.status(401).json({ 
+        status: 'error', 
+        message: 'Incorrect password',
+        suggestion: 'Please check your password and try again. If you forgot your password, please contact support.'
+      });
     }
 
     // Why: If credentials are valid, send a token response.
