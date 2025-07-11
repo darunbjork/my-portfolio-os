@@ -27,3 +27,4 @@ test_auth_errors.js
 .dockerignore
 
 .SEC
+.DS_Store
