@@ -20,7 +20,7 @@ exports.uploadProfileImage = async (req, res) => {
 
     res.status(200).json({ url: result.secure_url });
   } catch (error) {
-    console.error('Error uploading image to Cloudinary:', error);
-    res.status(500).json({ message: 'Image upload failed' });
+    console.error('Cloudinary upload error:', error);
+    res.status(500).json({ message: 'Image upload failed', error: error.message });
   }
 };
