@@ -12,8 +12,8 @@ exports.getProfile = async (req, res, next) => {
     });
 
     if (!profile) {
-      // If no profile found, return 404
-      return res.status(404).json({ success: false, message: 'Profile not found for this user.' });
+      // Return an empty array so the frontend can handle it gracefully
+      return res.status(200).json({ success: true, data: [] });
     }
 
     // If profile found, return it as an array (as frontend expects)
