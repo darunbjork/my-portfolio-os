@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const { protect } = require('../middleware/auth');
-const { uploadProfileImage } = require('../controllers/uploadController');
+const { uploadProfileImage, uploadProjectImage } = require('../controllers/uploadController');
 
 const router = express.Router();
 
@@ -34,5 +34,8 @@ const upload = multer({
 
 // Route for profile image upload
 router.post('/profile-image', protect, upload.single('profileImage'), uploadProfileImage);
+
+// Route for project image upload
+router.post('/project-image', protect, upload.single('projectImage'), uploadProjectImage);
 
 module.exports = router;

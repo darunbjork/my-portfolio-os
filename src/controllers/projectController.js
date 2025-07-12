@@ -39,6 +39,11 @@ exports.createProject = async (req, res, next) => {
     // Why: Associate the project with the authenticated user
     req.body.user = req.user.id;
 
+    // If an imageUrl is provided, ensure it's a valid URL
+    if (req.body.imageUrl && !/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/.test(req.body.imageUrl)) {
+      return next(new ErrorResponse('Please provide a valid URL for the project image', 400));
+    }
+
     const project = await Project.create(req.body);
 
     res.status(201).json({
@@ -56,6 +61,11 @@ exports.createProject = async (req, res, next) => {
 exports.updateProject = async (req, res, next) => {
   try {
     // Why: Authorization is now handled by middleware, so we can directly update
+    // If an imageUrl is provided, ensure it's a valid URL
+    if (req.body.imageUrl && !/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/.test(req.body.imageUrl)) {
+      return next(new ErrorResponse('Please provide a valid URL for the project image', 400));
+    }
+
     const project = await Project.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,

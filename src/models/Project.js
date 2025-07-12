@@ -48,6 +48,14 @@ const ProjectSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  // Why: 'imageUrl' stores the URL of the project's image.
+  imageUrl: {
+    type: String,
+    match: [
+      /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/,
+      'Please use a valid URL for the project image',
+    ],
+  },
   // Why: 'createdAt' is automatically added for tracking.
   createdAt: {
     type: Date,
