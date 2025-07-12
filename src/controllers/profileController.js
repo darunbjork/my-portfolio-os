@@ -12,15 +12,16 @@ exports.getProfile = async (req, res, next) => {
     });
 
     if (!profile) {
-      return next(new ErrorResponse('Profile not found for this user', 404));
+      // If no profile found, return 404
+      return res.status(404).json({ success: false, message: 'Profile not found for this user.' });
     }
 
-    res.status(200).json({
-      success: true,
-      data: profile
-    });
+    // If profile found, return it as an array (as frontend expects)
+    res.status(200).json({ success: true, data: [profile] });
+
   } catch (error) {
-    next(error);
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
