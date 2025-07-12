@@ -12,8 +12,7 @@ exports.uploadProfileImage = async (req, res) => {
 
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: 'portfolio-profile-images',
-      resource_type: 'image',
-      upload_preset: 'portfolio_unsigned' // Must match Cloudinary dashboard
+      resource_type: 'image'
     });
 
     // Clean up temp file
