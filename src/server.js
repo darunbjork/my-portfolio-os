@@ -48,11 +48,21 @@ const authRouter = require('./api/auth');
 const projectRouter = require('./api/projects');
 const infoRouter = require('./api/info');
 const profileRouter = require('./api/profile');
+const uploadRouter = require('./api/upload'); // New: Upload router
+
+// New: Create uploads directory if it doesn't exist
+const fs = require('fs');
+const path = require('path');
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/projects', projectRouter);
 app.use('/api/v1', infoRouter);
 app.use('/api/v1/profile', profileRouter);
+app.use('/api/v1/upload', uploadRouter); // New: Use upload router
 
 // Database connection
 mongoose.connect(process.env.MONGO_URI)
