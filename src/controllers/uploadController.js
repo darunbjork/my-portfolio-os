@@ -66,4 +66,4 @@ exports.uploadProjectImage = async (req, res) => {
     console.error('Cloudinary upload error:', error);
     res.status(500).json({ message: 'Image upload failed', error: error.message });
   }
-};
+;
