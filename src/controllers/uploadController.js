@@ -1,33 +1,27 @@
 const cloudinary = require('../config/cloudinaryConfig');
-const ErrorResponse = require('../utils/errorResponse');
+const fs = require('fs'); // Import fs for file system operations
 
 // @desc    Upload profile image to Cloudinary
 // @route   POST /api/v1/upload/profile-image
 // @access  Private
-exports.uploadProfileImage = async (req, res, next) => {
+exports.uploadProfileImage = async (req, res) => {
   try {
     if (!req.file) {
-      return next(new ErrorResponse('No file uploaded', 400));
+      return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    // Upload image to Cloudinary
     const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: 'portfolio-profile-images', // Optional: folder in Cloudinary
-      resource_type: 'image', // Ensure it's treated as an image
+      folder: 'portfolio-profile-images',
+      resource_type: 'image',
+      upload_preset: 'portfolio_unsigned' // Must match Cloudinary dashboard
     });
 
-    // Delete the local file after upload (Multer stores it temporarily)
-    // fs.unlinkSync(req.file.path); // You'll need to import 'fs' for this
+    // Clean up temp file
+    fs.unlinkSync(req.file.path);
 
-    res.status(200).json({
-      success: true,
-      data: {
-        url: result.secure_url,
-        public_id: result.public_id,
-      },
-    });
+    res.status(200).json({ url: result.secure_url });
   } catch (error) {
     console.error('Error uploading image to Cloudinary:', error);
-    return next(new ErrorResponse('Image upload failed', 500));
+    res.status(500).json({ message: 'Image upload failed' });
   }
 };
