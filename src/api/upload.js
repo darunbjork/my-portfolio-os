@@ -17,12 +17,10 @@ const storage = multer.diskStorage({
 
 // Filter for image files
 const fileFilter = (req, file, cb) => {
-  const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-
-  if (allowedMimeTypes.includes(file.mimetype)) {
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/gif') {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed!'), false);
+    cb(new Error('Invalid file type, only JPEG, PNG, GIF are allowed!'), false);
   }
 };
 
@@ -35,6 +33,6 @@ const upload = multer({
 });
 
 // Route for profile image upload
-router.post('/profile-image', protect, upload.single('file'), uploadProfileImage);
+router.post('/profile-image', protect, upload.single('profileImage'), uploadProfileImage);
 
 module.exports = router;
