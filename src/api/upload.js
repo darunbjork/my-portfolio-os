@@ -20,7 +20,7 @@ const fileFilter = (req, file, cb) => {
   if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/gif') {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type, only JPEG, PNG, GIF are allowed!'), false);
+    cb(new Error('Unsupported file format. Please upload JPEG, PNG, or GIF images.'), false);
   }
 };
 
