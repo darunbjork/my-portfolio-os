@@ -1,19 +1,27 @@
 const Profile = require('../models/Profile');
+const User = require('../models/User'); // Import User model
 const ErrorResponse = require('../utils/errorResponse');
 
 // @desc    Get current user's profile
 // @route   GET /api/v1/profile
-// @access  Private
+// @access  Public (for owner's profile)
 exports.getProfile = async (req, res, next) => {
   try {
-    const profile = await Profile.findOne({ user: req.user.id }).populate({
+    // Find the user with the 'owner' role
+    const ownerUser = await User.findOne({ role: 'owner' });
+
+    if (!ownerUser) {
+      return res.status(200).json({ success: true, data: [] }); // No owner found
+    }
+
+    // Find the profile associated with the owner user
+    const profile = await Profile.findOne({ user: ownerUser._id }).populate({
       path: 'user',
       select: 'email'
     });
 
     if (!profile) {
-      // Return an empty array so the frontend can handle it gracefully
-      return res.status(200).json({ success: true, data: [] });
+      return res.status(200).json({ success: true, data: [] }); // Owner found, but no profile created yet
     }
 
     // If profile found, return it as an array (as frontend expects)

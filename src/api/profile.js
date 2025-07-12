@@ -5,7 +5,7 @@ const { protect } = require('../middleware/auth');
 const router = express.Router();
 
 router.route('/')
-  .get(protect, getProfile) // Get current user's profile
+  .get(getProfile) // Get current user's profile (publicly accessible)
   .post(protect, createProfile) // Create user profile
   .put(protect, updateProfile); // Update user profile
 
