@@ -4,8 +4,6 @@ const cors = require('cors');
 
 const app = express();
 
-app.set('trust proxy', 1); // Add this before routes
-
 // // Middleware
 // app.use(cors({
 //   origin: 'http://localhost:5173', // Default origin for local development
@@ -13,9 +11,19 @@ app.set('trust proxy', 1); // Add this before routes
 //   credentials: true
 // }));
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'https://my-portfolio-gr2e.onrender.com',
+  // Add your deployed frontend URL here when you have it
+  // 'https://your-frontend-name.onrender.com' 
+];
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://my-portfolio-gr2e.onrender.com'],
-  credentials: true
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 
