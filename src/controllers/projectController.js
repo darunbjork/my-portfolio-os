@@ -7,6 +7,21 @@ const ErrorResponse = require('../utils/errorResponse'); // Import our custom er
 // @route   GET /api/v1/projects
 // @access  Public
 exports.getProjects = async (req, res, next) => {
+  const projects = res.advancedResults.data;
+
+  // Add full URL to image paths
+  const projectsWithFullUrls = projects.map(project => {
+    const projectObject = project.toObject();
+    if (projectObject.image) {
+      projectObject.image = `${req.protocol}://${req.get('host')}/uploads/${projectObject.image}`;
+    } else {
+      projectObject.image = `${req.protocol}://${req.get('host')}/placeholder.jpg`;
+    }
+    return projectObject;
+  });
+
+  res.advancedResults.data = projectsWithFullUrls;
+
   res.status(200).json(res.advancedResults);
 };
 

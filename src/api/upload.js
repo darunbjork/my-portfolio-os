@@ -15,21 +15,15 @@ const storage = multer.diskStorage({
   },
 });
 
-// Filter for image files
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/gif') {
-    cb(null, true);
-  } else {
-    cb(new Error('Unsupported file format. Please upload JPEG, PNG, or GIF images.'), false);
-  }
-};
-
 const upload = multer({
   storage: storage,
-  limits: {
-    fileSize: 1024 * 1024 * 5 // 5MB limit
-  },
-  fileFilter: fileFilter
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only images are allowed!'), false);
+    }
+  }
 });
 
 // Route for profile image upload
