@@ -1,5 +1,6 @@
 const cloudinary = require('../config/cloudinaryConfig');
 const fs = require('fs'); // Import fs for file system operations
+const Profile = require('../models/Profile'); // Import Profile model
 
 // @desc    Upload profile image to Cloudinary
 // @route   POST /api/v1/upload/profile-image
@@ -18,7 +19,18 @@ exports.uploadProfileImage = async (req, res) => {
     // Clean up temp file
     fs.unlinkSync(req.file.path);
 
-    res.status(200).json({ url: result.secure_url });
+    // Update the user's profile with the new image URL
+    const profile = await Profile.findOneAndUpdate(
+      { user: req.user.id },
+      { profileImageUrl: result.secure_url },
+      { new: true, runValidators: true }
+    );
+
+    if (!profile) {
+      return res.status(404).json({ message: 'Profile not found for this user.' });
+    }
+
+    res.status(200).json({ url: result.secure_url, profile });
   } catch (error) {
     console.error('Cloudinary upload error:', error);
     res.status(500).json({ message: 'Image upload failed', error: error.message });

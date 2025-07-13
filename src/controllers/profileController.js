@@ -25,7 +25,15 @@ exports.getProfile = async (req, res, next) => {
     }
 
     // If profile found, return it as an array (as frontend expects)
-    res.status(200).json({ success: true, data: [profile] });
+    const profileWithFullImageUrl = {
+      ...profile.toObject(),
+    };
+
+    if (profileWithFullImageUrl.profileImageUrl && !profileWithFullImageUrl.profileImageUrl.startsWith('http')) {
+      profileWithFullImageUrl.profileImageUrl = `${req.protocol}://${req.get('host')}/uploads/${profileWithFullImageUrl.profileImageUrl}`;
+    }
+
+    res.status(200).json({ success: true, data: [profileWithFullImageUrl] });
 
   } catch (error) {
     console.error(error);
