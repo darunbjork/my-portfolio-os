@@ -29,7 +29,7 @@ exports.getProfile = async (req, res, next) => {
       ...profile.toObject(),
     };
 
-    if (profileWithFullImageUrl.profileImageUrl && !profileWithFullImageUrl.profileImageUrl.startsWith('http')) {
+    if (profileWithFullImageUrl.profileImageUrl) {
       profileWithFullImageUrl.profileImageUrl = `${req.protocol}://${req.get('host')}/uploads/${profileWithFullImageUrl.profileImageUrl}`;
     }
 

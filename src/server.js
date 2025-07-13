@@ -29,6 +29,9 @@ app.use(cors({
 
 app.use(express.json());
 
+// Serve static files from the 'uploads' directory
+app.use('/uploads', express.static('uploads'));
+
 // Health check endpoint (important for Render)
 app.get('/health', (req, res) => {
   res.status(200).json({ 
