@@ -1,0 +1,32 @@
+feat: Implement robust file upload and fix profile image validation
+
+This commit introduces comprehensive file upload functionality and resolves critical issues with profile image handling.
+
+Key changes include:
+
+- **File Upload System:**
+  - Implemented `sharp` for image processing (resizing, webp conversion) for profile images.
+  - Integrated `multer.memoryStorage()` for efficient file handling in memory.
+  - Added `makePublicUrl` helper to construct full public URLs for uploaded files, ensuring correct paths for both local storage and Cloudinary.
+  - Created dedicated `uploads/profiles` and `uploads/resumes` directories for organized storage.
+  - Implemented `uploadProfileImage` to handle profile picture uploads, including auto-creation of a `Profile` document if missing for a user.
+  - Implemented `uploadResume` for PDF resume uploads.
+  - Configured `src/api/upload.js` with new routes (`/profile-image`, `/resume`) and appropriate middleware.
+  - Updated `src/server.js` to correctly serve static files from the `uploads` directory.
+
+- **Profile Image Validation Fix:**
+  - Resolved the "Validation failed: profileImageUrl" error by ensuring the `uploadProfileImage` controller saves the full public URL (not just the filename) to the
+    `profileImageUrl` field in the `Profile` model. This aligns with the Mongoose schema's URL validation.
+
+- **Test Suite Enhancements:**
+  - Fixed failing `project.test.js` tests by correctly setting `projectId` in `beforeAll` and removing conflicting `beforeEach`/`afterEach` hooks, ensuring test
+    isolation and stability.
+  - Corrected field names (`githubLink` to `githubUrl`, `liveLink` to `liveUrl`) in project test data to match the `Project` schema.
+  - Ensured the test user in `project.test.js` is registered with the 'owner' role for proper middleware authorization.
+  - Increased Jest timeout for `auth.test.js` and added proper database connection/disconnection hooks to prevent timeouts and ensure reliable authentication tests.
+  - Removed `username` field from test registration data to align with the `User` schema.
+
+- **Code Cleanup:**
+  - Removed various debugging `console.log` statements from controllers and middleware.
+
+This comprehensive update significantly improves the stability, functionality, and maintainability of the application's file upload and profile management features.

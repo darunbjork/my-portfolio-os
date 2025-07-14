@@ -53,6 +53,10 @@ exports.uploadProfileImage = async (req, res, next) => {
       profile.profileImage = filename; // Update filename
       profile.profileImageUrl = profileImageUrl; // Update full URL
     }
+
+    console.log('Before save: profile.profileImageUrl =', profile.profileImageUrl);
+    console.log('Before save: typeof profile.profileImageUrl =', typeof profile.profileImageUrl);
+
     await profile.save();
 
     return res.json({ success: true, url: profileImageUrl });
