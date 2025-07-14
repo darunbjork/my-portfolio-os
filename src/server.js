@@ -3,13 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const app = express();
-
-// // Middleware
-// app.use(cors({
-//   origin: 'http://localhost:5173', // Default origin for local development
-//   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-//   credentials: true
-// }));
+require('dotenv').config();
 
 const allowedOrigins = [
   'http://localhost:5173',
@@ -65,7 +59,7 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/projects', projectRouter);
 app.use('/api/v1', infoRouter);
 app.use('/api/v1/profile', profileRouter);
-app.use('/api/v1/upload', uploadRouter); // New: Use upload router
+app.use('/api/v1/upload', uploadRouter); 
 
 // Database connection
 mongoose.connect(process.env.MONGO_URI)

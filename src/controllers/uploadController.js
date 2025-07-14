@@ -16,6 +16,7 @@ function makePublicUrl(req, filepath) {
 // @desc    Upload profile image
 // @route   POST /api/v1/upload/profile-image
 // @access  Private
+//profileImageUrl
 exports.uploadProfileImage = async (req, res, next) => {
   console.error('⚡ uploadProfileImage called for user', req.user?.id);
   try {
@@ -23,25 +24,23 @@ exports.uploadProfileImage = async (req, res, next) => {
 
     console.log('Received file for profile upload:', { originalname: req.file.originalname, mimetype: req.file.mimetype, size: req.file.size });
 
-    // 1a. Process & write file
-    const filename = `profile-${req.user.id}-${Date.now()}.webp`;
-    const relPath = `uploads/profiles/${filename}`;
-    const fullPath = path.join(process.cwd(), relPath);
+    // 1a. Process and upload to Cloudinary
+    const dataUri = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    const result = await cloudinary.uploader.upload(dataUri, {
+      folder: 'portfolio-profile-images',
+      resource_type: 'auto',
+      public_id: `profile-${req.user.id}`,
+      overwrite: true,
+      transformation: [
+        { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+        { quality: 'auto' }
+      ]
+    });
 
-    console.log('Attempting to save profile image to:', fullPath);
-
-    // Ensure directory exists
-    await fs.mkdir(path.dirname(fullPath), { recursive: true });
-
-    await sharp(req.file.buffer)
-      .resize(400, 400, { fit: 'cover', position: 'center' })
-      .webp({ quality: 80 })
-      .toFile(fullPath);
-
-    console.log('Profile image saved to disk.');
+    console.log('Profile image uploaded to Cloudinary:', result.secure_url);
 
     // 1b. Build public URL
-    const profileImageUrl = makePublicUrl(req, relPath);
+    const profileImageUrl = result.secure_url;
 
     console.log('Generated profileImageUrl:', profileImageUrl);
 
@@ -51,22 +50,21 @@ exports.uploadProfileImage = async (req, res, next) => {
     let profile = await Profile.findOne({ user: req.user.id });
 
     if (!profile) {
-      console.log('No existing profile found, creating new one.');
+      console.log('uploadProfileImage: No existing profile found, creating new one.');
       profile = new Profile({
         user: req.user.id,
         fullName: "Your Default Name", // Placeholder
         bio: "", // Placeholder
-        profileImage: filename, // Store filename
         profileImageUrl: profileImageUrl // Store full URL
       });
+      console.log('uploadProfileImage: New profile object created:', profile);
     } else {
-      console.log('Existing profile found, updating.');
-      profile.profileImage = filename; // Update filename
+      console.log('uploadProfileImage: Existing profile found, updating.');
       profile.profileImageUrl = profileImageUrl; // Update full URL
+      console.log('uploadProfileImage: Profile object after updating profileImageUrl:', profile);
     }
-    await profile.save();
-
-    console.log('Profile document saved/updated in DB.');
+    const savedProfile = await profile.save();
+    console.log('uploadProfileImage: Profile document saved/updated in DB. Saved profile:', savedProfile);
 
     return res.json({ success: true, url: profileImageUrl });
   } catch (err) {
@@ -87,7 +85,8 @@ exports.uploadProjectImage = async (req, res, next) => {
 
     // Upload buffer directly to Cloudinary
     console.log('Attempting to upload to Cloudinary...');
-    const result = await cloudinary.uploader.upload(req.file.buffer.toString('base64'), {
+    const dataUri = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    const result = await cloudinary.uploader.upload(dataUri, {
       folder: 'portfolio-project-images', // Dedicated folder for project images
       resource_type: 'auto' // auto-detect file type
     });

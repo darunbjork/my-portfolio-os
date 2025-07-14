@@ -1,3 +1,4 @@
+// src/controllers/profileController.js
 const Profile = require('../models/Profile');
 const User = require('../models/User'); // Import User model
 const ErrorResponse = require('../utils/errorResponse');
@@ -81,9 +82,13 @@ exports.createProfile = async (req, res, next) => {
 // @access  Private
 exports.updateProfile = async (req, res, next) => {
   try {
+    console.log('updateProfile: Received request. req.user.id:', req.user.id);
+    console.log('updateProfile: req.body:', req.body);
+
     let profile = await Profile.findOne({ user: req.user.id });
 
     if (!profile) {
+      console.log('updateProfile: Profile not found.');
       return next(new ErrorResponse('Profile not found for this user. Use POST to create.', 404));
     }
 
@@ -96,9 +101,38 @@ exports.updateProfile = async (req, res, next) => {
       }
     );
 
+    console.log('updateProfile: Profile after findOneAndUpdate:', profile);
+
     res.status(200).json({
       success: true,
       data: profile
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete user profile
+// @route   DELETE /api/v1/profile/:id
+// @access  Private
+exports.deleteProfile = async (req, res, next) => {
+  try {
+    const profile = await Profile.findById(req.params.id);
+
+    if (!profile) {
+      return next(new ErrorResponse(`Profile not found with id of ${req.params.id}`, 404));
+    }
+
+    // Make sure user is profile owner
+    if (profile.user.toString() !== req.user.id && req.user.role !== 'owner') {
+      return next(new ErrorResponse(`User ${req.user.id} is not authorized to delete this profile`, 401));
+    }
+
+    await profile.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      data: {}
     });
   } catch (error) {
     next(error);
