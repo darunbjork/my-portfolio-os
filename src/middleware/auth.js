@@ -34,7 +34,6 @@ exports.protect = async (req, res, next) => {
     // 3. Verify the token
     // Why: jwt.verify() checks if the token is valid, not expired, and signed with our secret.
     const decoded = jwt.verify(token, config.jwtSecret);
-    console.log('Decoded JWT payload:', decoded); // For debugging purposes
 
     // 4. Find the user from the token's payload
     // Why: We get the user's ID from the token's payload (decoded.id) and

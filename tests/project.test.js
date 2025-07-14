@@ -6,10 +6,17 @@ const projectRouter = require('../src/api/projects');
 const User = require('../src/models/User');
 const Project = require('../src/models/Project');
 
+const helmet = require('helmet');
+const cors = require('cors');
+const errorHandler = require('../src/middleware/errorHandler');
+
 const app = express();
 app.use(express.json());
+app.use(helmet());
+app.use(cors());
 app.use('/api/auth', authRouter);
 app.use('/api/projects', projectRouter);
+app.use(errorHandler);
 
 let token;
 let projectId;
@@ -23,9 +30,9 @@ beforeAll(async () => {
   await request(app)
     .post('/api/auth/register')
     .send({
-      username: 'testuser_project',
       email: 'test_project@example.com',
       password: 'password123',
+      role: 'owner',
     });
 
   const loginRes = await request(app)
@@ -35,6 +42,19 @@ beforeAll(async () => {
       password: 'password123',
     });
   token = loginRes.body.token;
+
+  // Create a project for tests that require it
+  const res = await request(app)
+    .post('/api/projects')
+    .set('Authorization', `Bearer ${token}`)
+    .send({
+      title: 'Test Project',
+      description: 'This is a test project description.',
+      technologies: ['Node.js', 'Express'],
+      githubUrl: 'https://github.com/test/testproject',
+      liveUrl: 'https://testproject.com',
+    });
+  projectId = res.body.data._id;
 });
 
 afterAll(async () => {
@@ -50,7 +70,6 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  jest.setTimeout(10000); // Increase timeout for this hook
   await User.deleteMany({});
   await Project.deleteMany({});
 });
@@ -64,8 +83,8 @@ describe('Project CRUD Operations', () => {
         title: 'Test Project',
         description: 'This is a test project description.',
         technologies: ['Node.js', 'Express'],
-        githubLink: 'https://github.com/test/testproject',
-        liveLink: 'https://testproject.com',
+        githubUrl: 'https://github.com/test/testproject',
+        liveUrl: 'https://testproject.com',
       });
     expect(res.statusCode).toEqual(201);
     expect(res.body).toHaveProperty('data');

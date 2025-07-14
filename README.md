@@ -1,130 +1,219 @@
-# My Production Portfolio OS
+# 🎯 My Portfolio OS – Backend API
 
-https://my-portfolio-gr2e.onrender.com
+This is the backend API for my full-stack portfolio system, built to **showcase real-world engineering skills** — not toy examples.
 
-## 🌟 Overview
+Designed from the ground up for **production**, it features **JWT-based authentication**, **Cloudinary file uploads**, **role-based access control**, and **RESTful endpoints** for managing portfolio data (projects, skills, experience, and more).
 
-Welcome to **My Production Portfolio OS**! This project is a comprehensive, production-grade full-stack web application designed to showcase my skills as a software engineer. Built with the MERN (MongoDB, Express.js, React, Node.js) stack, it aims to demonstrate best practices in secure design, modular architecture, testing, and modern DevOps deployment.
+> 💡 Built with Node.js, Express, MongoDB, and Docker — fully tested, secure, and deployment-ready.
 
-This repository serves as a public showcase of my journey from a complete beginner to a proficient full-stack developer, emphasizing a deep understanding of every line of code and every architectural decision.
+---
 
-## 🚀 Features (Planned)
+## 📁 Project Structure
 
-- **User Authentication & Authorization:** Secure user registration, login, and role-based access control.
-- **Dynamic Portfolio Management:** Create, update, and manage various portfolio items (projects, articles, achievements) with rich content support.
-- **Admin Dashboard:** A dedicated interface for managing all aspects of the portfolio.
-- **Contact Form & Messaging System:** Allow visitors to reach out directly.
-- **Cloud Infrastructure & Deployment:** Fully Dockerized application with CI/CD pipeline for automated deployments.
-- **Observability:** Integrated logging and monitoring.
+src/
+├── api/ # Express route definitions
+├── controllers/ # Business logic and service orchestration
+├── middleware/ # Auth, error handling, validation, security
+├── models/ # Mongoose schemas (User, Project, etc.)
+├── utils/ # Helpers (token, logger, pagination, etc.)
+└── config/ # DB connection, Cloudinary, env configs
 
-## 🛠️ Technologies Used
 
-### Backend
+---
 
-- **Node.js:** JavaScript runtime environment.
-- **Express.js:** Fast, unopinionated, minimalist web framework for Node.js.
-- **MongoDB:** NoSQL document database.
-- **Mongoose:** MongoDB object data modeling (ODM) for Node.js.
-- **JSON Web Tokens (JWT):** For secure user authentication.
-- **Bcrypt:** For password hashing.
-- **Helmet:** Express middleware for setting security HTTP headers.
-- **CORS:** Express middleware for enabling Cross-Origin Resource Sharing.
-- **Dotenv:** For loading environment variables.
+## 🚀 Features
 
-### Frontend (Planned - will be added in later steps)
+- 🔐 **Authentication** – JWT + bcrypt with role-based access (`user`, `admin`)
+- 📦 **File Uploads** – Cloudinary integration (images for projects)
+- 🧠 **Data Models** – Users, Projects, Profiles, Skills
+- 🧪 **Testing** – Jest + Supertest with coverage for all critical flows
+- 🛡️ **Security Best Practices** – Helmet, CORS, rate limiting, input validation
+- 🧩 **Modular Codebase** – Built for clarity, testability, and long-term scaling
 
-- **React:** A JavaScript library for building user interfaces.
-- **React Router:** For declarative routing in React applications.
-- **Tailwind CSS:** A utility-first CSS framework for rapid UI development.
+---
 
-### Infrastructure & DevOps
+## 🧪 API Endpoints
 
-- **Docker:** Containerization platform for consistent environments.
-- **Docker Compose:** Tool for defining and running multi-container Docker applications.
-- **Git & GitHub:** Version control and code hosting.
-- **CI/CD (e.g., GitHub Actions):** For automated testing and deployment.
+### 🔐 Auth
 
-## ⚙️ Setup and Installation (Development)
+POST /api/auth/register # Register user
+POST /api/auth/login # Login & return token
+GET /api/auth/me # Get current logged-in user (protected)
 
-To get this project running on your local machine:
 
-1.  **Clone the Repository:**
+### 🧱 Projects
 
-    git clone https://github.com/darunbjork/my-portfolio-os.git
-    cd my-portfolio-os
+GET /api/projects # Public list of all projects
+POST /api/projects # Create (admin-only)
+GET /api/projects/:id # Get single project
+PUT /api/projects/:id # Update (admin-only)
+DELETE /api/projects/:id # Delete (admin-only)
 
-    _(Note: Replace `https://github.com/your-username/my-portfolio-os.git` with your actual repository URL once created.)_
 
-2.  **Install Backend Dependencies:**
+### 👤 Profiles
 
-    npm install
+GET /api/profiles/:userId # Get user profile
+PUT /api/profiles/:userId # Update profile (protected)
 
-3.  **Environment Variables:**
-    Create a `.env` file in the root directory of the project and populate it based on the `.env.example` file:
 
-    cp .env.example .env
+---
 
-    # Now open .env and fill in sensitive variables if any.
+## 🧬 Data Models
 
-    # For Day 1, simply:
+### 🔹 User
 
-    # PORT=3000
-
-    # NODE_ENV=development
-
-4.  **Run with Node.js (without Docker):**
-
-    npm start
-
-    Your server should be running at `http://localhost:3000`.
-
-5.  **Run with Docker Compose:**
-    Ensure Docker Desktop is running on your machine.
-
-    docker compose up --build # --build forces a rebuild of the image
-
-    Your server should be running inside a Docker container, accessible at `http://localhost:3000`.
-
-## ✅ Testing the Server
-
-Once the server is running, you can test the endpoints:
-
-**1. Root Endpoint (`/`):**
-
-curl http://localhost:3000
-
-Expected Response: Hello World from My Production Portfolio OS!
-
-2. Health Check Endpoint (/health):
-
-curl http://localhost:3000/health
-Expected Response (JSON):
-
-JSON
 {
-"status": "success",
-"message": "Server is healthy!",
-"timestamp": "YYYY-MM-DDTHH:MM:SS.sssZ",
-"uptime": [number]
+  name: String,
+  email: String,
+  password: String (hashed),
+  role: 'user' | 'admin',
+  createdAt: Date
 }
 
-📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+🔹 Project
 
-**Explanation (`README.md`):**
+{
+  title: String,
+  description: String,
+  technologies: [String],
+  githubUrl: String,
+  liveUrl: String,
+  images: [String],
+  featured: Boolean,
+  user: ObjectId (ref: 'User'),
+  createdAt: Date
+}
 
-- **Overview:** Clearly states the project's purpose and learning goals.
-- **Features (Planned):** Outlines the high-level features we will implement, giving a roadmap.
-- **Technologies Used:** Lists all planned technologies, separated by backend, frontend, and infrastructure.
-- **Setup and Installation:** Provides clear, step-by-step instructions for getting the project running locally, both with and without Docker. This is vital for onboarding.
-- **Testing the Server:** Explains how to verify the server is working using `curl` commands, showing expected outputs.
-- **License:** Standard practice to include licensing information.
+⚙️ Setup & Development
 
-#### **14. Initial Git Commit**
+✅ Prerequisites
+Node.js v18+
+MongoDB 4.4+
+Cloudinary account
+Docker (optional)
+📦 Environment Variables
 
-It's time for our first commit! This marks a significant milestone and saves our initial setup.
+NODE_ENV=development
+PORT=3000
+MONGO_URI=mongodb://localhost:27017/portfolio
+JWT_SECRET=your-secret
+CLOUDINARY_CLOUD_NAME=your-name
+CLOUDINARY_API_KEY=your-key
+CLOUDINARY_API_SECRET=your-secret
 
-**Commands:**
+💻 Local Development
 
-git add .
-git commit -m "feat: Initialize project with Express server, Docker, and basic structure"
+# 1. Clone the repo
+git clone https://github.com/darunbjork/my-portfolio-os.git
+cd my-portfolio-os
+
+# 2. Install dependencies
+npm install
+
+# 3. Set up environment
+cp .env.example .env
+
+# 4. Start dev server
+npm run dev
+
+# 5. Run tests
+npm test
+
+🐳 Dockerized Workflow
+# Build and run
+docker-compose up --build
+
+# Run tests inside container
+docker-compose exec app npm test
+
+🧪 Testing
+npm test              # Run all tests
+npm run test:coverage # See code coverage
+npm test -- user.test.js  # Run single test file
+
+Test coverage includes:
+
+Authentication workflows
+Project CRUD
+Profile updates
+Middleware & edge cases
+File uploads
+Validation errors
+
+🔐 Security Checklist
+
+✅ JWT with expiration & refresh strategy
+✅ Bcrypt hashing with salt
+✅ Helmet for secure HTTP headers
+✅ CORS config
+✅ Rate limiting for auth endpoints
+✅ Centralized error handling
+✅ Input validation (Mongoose + custom logic)
+📈 Performance Optimizations
+
+🗃️ MongoDB Indexing – On user ID, project slugs
+📄 Pagination Middleware – advancedResults utility
+🖼️ CDN Uploads – Direct Cloudinary integration
+🧹 Zero Server Storage – No disk images saved
+🔍 Custom Error Classes – Centralized and clean
+🚀 Deployment
+
+🔐 Production .env
+NODE_ENV=production
+PORT=5000
+MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/portfolio
+JWT_SECRET=supersecurestring
+JWT_EXPIRE=7d
+CLOUDINARY_CLOUD_NAME=your-name
+CLOUDINARY_API_KEY=xxx
+CLOUDINARY_API_SECRET=xxx
+
+
+🔧 Docker Production
+
+# Build image
+docker build -t portfolio-api .
+
+# Run it
+docker run --env-file .env.production -p 5000:5000 portfolio-api
+
+
+📘 API Documentation
+
+Interactive Swagger UI available at:
+http://localhost:3000/api/docs
+
+🧠 Roadmap
+
+ Auth + RBAC
+ Projects CRUD + Uploads
+ CI-ready Docker setup
+ Test suite with coverage
+ Admin-only dashboard auth
+ Image resizing (Sharp or Cloudinary presets)
+ CI/CD with GitHub Actions
+ Integrate error reporting (Sentry or LogRocket)
+🤝 Contributing
+
+Fork the repo
+Create a branch: git checkout -b feature/my-feature
+Commit: git commit -m 'Add my feature'
+Push: git push origin feature/my-feature
+Open a pull request
+🧾 License
+
+MIT © 2025 Darun Bjork
+See LICENSE for details.
+
+🙌 Author
+
+---
+
+## 🙌 Author
+
+**Darun Bjork**  
+[GitHub](https://github.com/darunbjork) | [LinkedIn] https://www.linkedin.com/in/darun-björk-b019b01b2/ | Stockholm, Sweden 🇸🇪
+
+---
+
+> Built by a developer who thinks in systems, codes in patterns, and deploys with confidence.
