@@ -11,7 +11,7 @@ const allowedOrigins = [
   'https://my-portfolio-gr2e.onrender.com',
   // Add your deployed frontend URL here when you have it
   // 'https://your-frontend-name.onrender.com',
-  'https://portfolio-dang4t94f-darunbjorks-projects.vercel.app' 
+  'https://portfolio-ui-azure.vercel.app' 
 ];
 
 app.use(cors({
