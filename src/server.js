@@ -5,22 +5,34 @@ const cors = require('cors');
 const app = express();
 require('dotenv').config();
 
+// const allowedOrigins = [
+//   'http://localhost:5173',
+//   'http://127.0.0.1:5173',
+//   'https://my-portfolio-gr2e.onrender.com',
+//   'https://myportfolio-ui.netlify.app'
+// ];
+
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'https://my-portfolio-gr2e.onrender.com',
-  // Add your deployed frontend URL here when you have it
-  // 'https://your-frontend-name.onrender.com',
-  'https://portfolio-ui-azure.vercel.app' 
+  'https://myportfolio-ui.netlify.app'
 ];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
 
 app.use(express.json());
 
