@@ -20,7 +20,19 @@ const SkillSchema = new mongoose.Schema({
   // Why: 'category' groups skills (e.g., 'Frontend', 'Backend').
   category: {
     type: String,
-    enum: ['Frontend', 'Backend', 'Database', 'DevOps', 'Tools'],
+    enum: [
+      'Frontend',
+      'Backend',
+      'Database',
+      'DevOps & Automation',
+      'Mobile',
+      'Desktop',
+      'UI/UX',
+      'Developer Tools',
+      'Cloud & Hosting',
+      'Testing & Quality',
+      'Other'
+    ],
     required: [true, 'Please provide a skill category'],
   },
   // Why: This links a skill to its owner, similar to the Project model.
