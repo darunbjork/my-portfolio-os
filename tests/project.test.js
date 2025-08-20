@@ -23,6 +23,8 @@ let projectId;
 
 beforeAll(async () => {
   console.log('Project Test MONGO_URI:', process.env.MONGO_URI);
+  const url = process.env.MONGO_URI;
+  await mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
 
   // Register a user and get a token
   await request(app)

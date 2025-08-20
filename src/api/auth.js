@@ -3,7 +3,7 @@
 // It uses an Express Router to keep our server.js file clean and organized.
 
 const express = require('express');
-const { register, login, getMe, updateUserRole, getUsers } = require('../controllers/authController');
+const { register, login, getMe, updateUserRole, getUsers, updatePassword } = require('../controllers/authController');
 const { protect, requireOwner } = require('../middleware/auth');
 
 const router = express.Router();
@@ -18,5 +18,7 @@ router.get('/me', protect, getMe);
 // Owner-only routes for user management
 router.get('/users', protect, requireOwner, getUsers);
 router.put('/users/:userId/role', protect, requireOwner, updateUserRole);
+
+router.put('/updatepassword', protect, updatePassword);
 
 module.exports = router;

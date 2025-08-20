@@ -229,6 +229,47 @@ exports.getUsers = async (req, res, next) => {
   }
 };
 
+// @desc    Update user password
+// @route   PUT /api/v1/auth/updatepassword
+// @access  Private
+exports.updatePassword = async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Please provide current and new passwords',
+    });
+  }
+
+  try {
+    const user = await User.findById(req.user.id).select('+password');
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found',
+      });
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Incorrect current password',
+      });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    sendTokenResponse(user, 200, res);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Why: A reusable function to create and send a JWT token in the response.
 // This prevents code duplication in our register and login functions.
 const sendTokenResponse = (user, statusCode, res) => {
