@@ -59,6 +59,7 @@ const projectRouter = require('./api/projects');
 const infoRouter = require('./api/info');
 const profileRouter = require('./api/profile');
 const uploadRouter = require('./api/upload'); // New: Upload router
+const learningRouter = require('./api/learning');
 
 // New: Create uploads directory if it doesn't exist
 const fs = require('fs');
@@ -73,6 +74,7 @@ app.use('/api/v1/projects', projectRouter);
 app.use('/api/v1', infoRouter);
 app.use('/api/v1/profile', profileRouter);
 app.use('/api/v1/upload', uploadRouter); 
+app.use('/api/v1/learning', learningRouter); 
 
 // Database connection
 mongoose.connect(process.env.MONGO_URI)

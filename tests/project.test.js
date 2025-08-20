@@ -23,8 +23,6 @@ let projectId;
 
 beforeAll(async () => {
   console.log('Project Test MONGO_URI:', process.env.MONGO_URI);
-  const url = process.env.MONGO_URI;
-  await mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
 
   // Register a user and get a token
   await request(app)
@@ -42,8 +40,20 @@ beforeAll(async () => {
       password: 'password123',
     });
   token = loginRes.body.token;
+});
 
-  // Create a project for tests that require it
+afterAll(async () => {
+  if (mongoose.connection.db) {
+    await mongoose.connection.db.dropDatabase();
+  }
+  await mongoose.connection.close();
+});
+
+afterEach(async () => {
+  await Project.deleteMany({});
+});
+
+beforeEach(async () => {
   const res = await request(app)
     .post('/api/projects')
     .set('Authorization', `Bearer ${token}`)
@@ -55,23 +65,6 @@ beforeAll(async () => {
       liveUrl: 'https://testproject.com',
     });
   projectId = res.body.data._id;
-});
-
-afterAll(async () => {
-  if (mongoose.connection.db) {
-    await mongoose.connection.db.dropDatabase();
-  }
-  await mongoose.connection.close();
-});
-
-beforeEach(async () => {
-  await User.deleteMany({});
-  await Project.deleteMany({});
-});
-
-afterEach(async () => {
-  await User.deleteMany({});
-  await Project.deleteMany({});
 });
 
 describe('Project CRUD Operations', () => {
