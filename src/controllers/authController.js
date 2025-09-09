@@ -303,11 +303,11 @@ exports.forgotPassword = async (req, res, next) => {
  ${resetUrl}`;
 
     try {
-      // await sendEmail({
-      //   email: user.email,
-      //   subject: 'Password Reset Token',
-      //   message,
-      // });
+      await sendEmail({
+        email: user.email,
+        subject: 'Password Reset Token',
+        message,
+      });
 
       res.status(200).json({ success: true, data: 'Email sent' });
     } catch (err) {

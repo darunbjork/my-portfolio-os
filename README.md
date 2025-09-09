@@ -24,6 +24,7 @@ src/
 ## 🚀 Features
 
 - 🔐 **Authentication** – JWT + bcrypt with role-based access (`user`, `admin`)
+- 🔑 **Password Reset** – Secure forgot/reset password flow via email
 - 📦 **File Uploads** – Cloudinary integration (images for projects)
 - 🧠 **Data Models** – Users, Projects, Profiles, Skills
 - 🧪 **Testing** – Jest + Supertest with coverage for all critical flows
@@ -38,7 +39,9 @@ src/
 
 POST /api/auth/register # Register user
 POST /api/auth/login # Login & return token
-GET /api/auth/me # Get current logged-in user (protected)
+POST /api/auth/me # Get current logged-in user (protected)
+POST /api/v1/auth/forgotpassword # Request password reset link
+PUT /api/v1/auth/resetpassword/:resettoken # Reset password with token
 
 
 ### 🧱 Projects
@@ -97,6 +100,8 @@ NODE_ENV=development
 PORT=3000
 MONGO_URI=mongodb://localhost:27017/portfolio
 JWT_SECRET=your-secret
+SENDGRID_API_KEY=SG.your_sendgrid_api_key_here
+FROM_EMAIL=myportfolio985@gmail.com # Must be a verified sender in SendGrid
 CLOUDINARY_CLOUD_NAME=your-name
 CLOUDINARY_API_KEY=your-key
 CLOUDINARY_API_SECRET=your-secret
