@@ -5,6 +5,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs'); // For password hashing
 const jwt = require('jsonwebtoken'); // For creating JWTs
+const crypto = require('crypto'); // For generating tokens
 const config = require('../config'); // To access our JWT secret
 
 // Define the User schema
@@ -38,6 +39,8 @@ const UserSchema = new mongoose.Schema({
     enum: ['owner', 'admin', 'viewer'],
     default: 'viewer', // Why: New users get read-only access by default for security
   },
+  resetPasswordToken: String,
+  resetPasswordExpire: Date,
   // Why: createdAt and updatedAt fields are automatically managed by Mongoose.
   // They are useful for auditing and tracking record lifecycles.
 }, { timestamps: true });
@@ -79,6 +82,23 @@ UserSchema.methods.getSignedJwtToken = function () {
   return jwt.sign({ id: this._id }, config.jwtSecret, {
     expiresIn: '1d', // Token expires in 1 day
   });
+};
+
+// Method to generate and hash password reset token
+UserSchema.methods.getResetPasswordToken = function () {
+  // Generate token
+  const resetToken = crypto.randomBytes(20).toString('hex');
+
+  // Hash token and set to resetPasswordToken field
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // Set expire
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+  return resetToken;
 };
 
 // Export the Mongoose model
