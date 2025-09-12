@@ -277,6 +277,10 @@ exports.updatePassword = async (req, res, next) => {
 // @route   POST /api/v1/auth/forgotpassword
 // @access  Public
 exports.forgotPassword = async (req, res, next) => {
+  if (!process.env.FRONTEND_URL) {
+    return next(new ErrorResponse('FRONTEND_URL is not set in .env file', 500));
+  }
+
   const { email } = req.body;
 
   if (!email) {
@@ -296,11 +300,11 @@ exports.forgotPassword = async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     // Create reset URL
-    const resetUrl = `${req.protocol}://${req.get('host')}/resetpassword/${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: 
+    const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please click on the following link to reset your password: 
 
- ${resetUrl}`;
+ <a href="${resetUrl}">${resetUrl}</a>`;
 
     try {
       await sendEmail({
