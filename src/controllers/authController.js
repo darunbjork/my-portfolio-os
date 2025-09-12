@@ -302,9 +302,7 @@ exports.forgotPassword = async (req, res, next) => {
     // Create reset URL
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please click on the following link to reset your password: 
-
- <a href="${resetUrl}">${resetUrl}</a>`;
+    const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please click on the following link to reset your password: <br><br> <a href="${resetUrl}">${resetUrl}</a>`;
 
     try {
       await sendEmail({
