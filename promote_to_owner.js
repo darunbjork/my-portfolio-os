@@ -1,6 +1,6 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const User = require('./src/models/User'); // Adjust path if your User model is elsewhere
+const User = require('./src/models/User'); 
 
 const promoteUserToOwner = async (email) => {
   if (!email) {
@@ -20,7 +20,7 @@ const promoteUserToOwner = async (email) => {
     const user = await User.findOneAndUpdate(
       { email: email },
       { role: 'owner' },
-      { new: true } // Return the updated document
+      { new: true }
     );
 
     if (user) {
@@ -36,6 +36,5 @@ const promoteUserToOwner = async (email) => {
   }
 };
 
-// Get email from command line arguments
 const userEmail = process.argv[2];
 promoteUserToOwner(userEmail);
