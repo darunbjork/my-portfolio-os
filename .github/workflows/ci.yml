@@ -1,0 +1,48 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Run this workflow on every push to the main branch
+      - feat/devops-pipeline # Also run on this branch
+  pull_request:
+    branches:
+      - main  # Also run it on every pull request to main
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest  # Use a fresh Ubuntu runner for the job
+
+    steps:
+      # Step 1: Checkout the code from the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up the Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'  # Use the same Node.js version as our project
+
+      # Step 3: Cache the node_modules to speed up builds
+      - name: Cache Node Modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Step 4: Install dependencies
+      - name: Install Dependencies
+        run: npm ci
+
+      # Step 5: Run tests with coverage (Removed 'Build Application' step as no build script exists)
+      - name: Run Unit & Integration Tests
+        run: npm test -- --coverage
+        env:
+          NODE_ENV: test
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+          ACCESS_TOKEN_EXPIRES_IN: ${{ secrets.ACCESS_TOKEN_EXPIRES_IN }}
+          REFRESH_TOKEN_EXPIRES_IN: ${{ secrets.REFRESH_TOKEN_EXPIRES_IN }}

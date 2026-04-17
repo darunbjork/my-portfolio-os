@@ -1,36 +1,23 @@
-// src/middleware/errorHandler.js
-// Why: This is our central error handling middleware.
-// It catches errors from all routes and sends a structured, consistent JSON response.
-
-const ErrorResponse = require('../utils/errorResponse'); // Import our custom error class
-
+const ErrorResponse = require('../utils/errorResponse'); 
 const errorHandler = (err, req, res, next) => {
   
-  let error = { ...err }; // Copy the error object
-  error.message = err.message; // Preserve the original error message
+  let error = { ...err }; 
+  error.message = err.message; 
 
-  // Mongoose Bad ObjectId Error (e.g., GET /projects/12345)
-  // Why: Check for a CastError from Mongoose, which happens when an ID format is invalid.
   if (err.name === 'CastError') {
     const message = `Resource not found with id of ${err.value}`;
-    // Why: Create a new custom error instance for this specific Mongoose error.
     error = new ErrorResponse(message, 404);
   }
 
-  // Mongoose Validation Error (e.g., creating a project with no title)
-  // Why: Check for Mongoose validation errors.
+ 
   if (err.name === 'ValidationError') {
-    // Why: Map over the error details to extract validation messages.
     const messages = Object.values(err.errors).map((val) => val.message);
     const message = `Validation error: ${messages.join(', ')}`;
-    error = new ErrorResponse(message, 400); // 400 Bad Request
+    error = new ErrorResponse(message, 400); 
   }
 
-  // Mongoose Duplicate Key Error (e.g., registering with an existing email)
-  // Why: Check for MongoDB duplicate key errors (code 11000).
   if (err.code === 11000) {
 
-    // Why: Provide specific, user-friendly messages for different duplicate fields
     let message = 'Duplicate field value entered';
     
     // Check if it's a duplicate email (most common case)
