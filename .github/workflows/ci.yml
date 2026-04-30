@@ -12,6 +12,8 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest # Use a fresh Ubuntu runner for the job
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # To address deprecation warning
 
     steps:
       # Step 1: Checkout the code from the repository
