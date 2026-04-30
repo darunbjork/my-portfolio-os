@@ -43,3 +43,5 @@ jobs:
         env:
           NODE_ENV: test
           JWT_SECRET: ${{secrets.JWT_SECRET}}
+          MONGO_URI_TEST: ${{secrets.MONGO_URI_TEST}}
+          SENDGRID_API_KEY: ${{secrets.SENDGRID_API_KEY}}
