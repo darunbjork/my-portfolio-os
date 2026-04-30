@@ -27,4 +27,8 @@ test_auth_errors.js
 .dockerignore
 
 .SEC
+.DS_Store.env
 .DS_Store
+lcov.info
+.vscode/
+coverage/

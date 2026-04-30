@@ -3,15 +3,15 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main  # Run this workflow on every push to the main branch
+      - main # Run this workflow on every push to the main branch
       - feat/devops-pipeline # Also run on this branch
   pull_request:
     branches:
-      - main  # Also run it on every pull request to main
+      - main # Also run it on every pull request to main
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-latest  # Use a fresh Ubuntu runner for the job
+    runs-on: ubuntu-latest # Use a fresh Ubuntu runner for the job
 
     steps:
       # Step 1: Checkout the code from the repository
@@ -22,7 +22,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'  # Use the same Node.js version as our project
+          node-version: "18" # Use the same Node.js version as our project
 
       # Step 3: Cache the node_modules to speed up builds
       - name: Cache Node Modules
@@ -42,7 +42,4 @@ jobs:
         run: npm test -- --coverage
         env:
           NODE_ENV: test
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
-          ACCESS_TOKEN_EXPIRES_IN: ${{ secrets.ACCESS_TOKEN_EXPIRES_IN }}
-          REFRESH_TOKEN_EXPIRES_IN: ${{ secrets.REFRESH_TOKEN_EXPIRES_IN }}
+          JWT_SECRET: ${{secrets.JWT_SECRET}}

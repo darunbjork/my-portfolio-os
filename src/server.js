@@ -5,13 +5,6 @@ const cors = require('cors');
 const app = express();
 require('dotenv').config();
 
-// const allowedOrigins = [
-//   'http://localhost:5173',
-//   'http://127.0.0.1:5173',
-//   'https://my-portfolio-gr2e.onrender.com',
-//   'https://myportfolio-ui.netlify.app'
-// ];
-
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
@@ -81,7 +74,7 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB Connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3005;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
 });
