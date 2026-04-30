@@ -32,3 +32,5 @@ test_auth_errors.js
 lcov.info
 .vscode/
 coverage/
+.env
+.env.test
