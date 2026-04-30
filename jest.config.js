@@ -1,7 +1,8 @@
 // jest.config.js
 module.exports = {
-  // Setup code to run before tests
-  setupFiles: ['<rootDir>/jest.setup.js'],
-
+  // Use globalSetup and globalTeardown for suite-level setup/teardown
+  globalSetup: '<rootDir>/jest.global-setup.js',
+  globalTeardown: '<rootDir>/jest.global-teardown.js',
+  
   // ... other Jest configurations you might add later
 };
