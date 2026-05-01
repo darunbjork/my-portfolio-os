@@ -150,6 +150,7 @@ To boost performance and reduce database load, a robust caching layer using Redi
 -   **Single-Item Caching**: Individual GET requests for `Project`, `Skill`, `Experience`, and `LearningItem` are cached for 30 minutes.
 -   **Cache Invalidation**: Create, Update, and Delete (CUD) operations for `Project`, `Skill`, `Experience`, and `LearningItem` models trigger pattern-based cache invalidation (`cache.delByPattern('<resource>*')`), ensuring data freshness.
 -   **Environment Variables**: `REDIS_URL` has been added to `.env.example` and configured in `docker-compose.yml` for the `web` service.
+-   **Test Environment Cleanup**: The `jest.global-teardown.js` file was updated to call `cache.disconnect()` at the end of the test suite. This ensures that any open Redis connections are gracefully closed, allowing the Jest process to exit without hanging.
 
 🚀 Deployment
 
