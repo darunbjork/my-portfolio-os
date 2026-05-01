@@ -1,10 +1,7 @@
-// src/controllers/infoController.js
-// Why: This controller handles CRUD for both Skills and Experience.
-// We are following the DRY principle (Don't Repeat Yourself) by reusing code.
-
 const Skill = require('../models/Skill');
 const Experience = require('../models/Experience');
 const ErrorResponse = require('../utils/errorResponse');
+const cache = require('../utils/cache');
 
 // --- Skills CRUD Operations ---
 
@@ -20,16 +17,24 @@ exports.getSkills = async (req, res, next) => {
 // @access  Public
 exports.getSkill = async (req, res, next) => {
   try {
+    const cacheKey = cache.buildKey('skill', { id: req.params.id });
+    const cached = await cache.get(cacheKey);
+    if (cached) {
+      return res.status(200).json(cached);
+    }
+
     const skill = await Skill.findById(req.params.id);
 
     if (!skill) {
       return next(new ErrorResponse(`Skill not found with id of ${req.params.id}`, 404));
     }
 
-    res.status(200).json({
+    const response = {
       status: 'success',
       data: skill,
-    });
+    };
+    cache.set(cacheKey, response, 1800);
+    res.status(200).json(response);
   } catch (error) {
     next(error);
   }
@@ -50,6 +55,7 @@ exports.createSkill = async (req, res, next) => {
       return next(new ErrorResponse('Not authorized to create skill: User not found or ID missing', 401));
     }
     const skill = await Skill.create(req.body);
+    await cache.delByPattern('skill*'); 
     res.status(201).json({ status: 'success', data: skill });
   } catch (error) {
     console.error('Error in createSkill:', error.message);
@@ -62,18 +68,17 @@ exports.createSkill = async (req, res, next) => {
 // @access  Private (Owner/Admin only - enforced by middleware)
 exports.updateSkill = async (req, res, next) => {
   try {
-    // Why: Authorization is now handled by middleware, so we can directly update
-    const skill = await Skill.findByIdAndUpdate(req.params.id, req.body, { 
-      new: true, 
-      runValidators: true 
+    const skill = await Skill.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
     });
 
     if (!skill) {
       return next(new ErrorResponse(`Skill not found with id of ${req.params.id}`, 404));
     }
 
-    res.status(200).json({ status: 'success', data: skill });
-  } catch (error) {
+    await cache.delByPattern('skill*'); 
+    res.status(200).json({ status: 'success', data: skill });  } catch (error) {
     next(error);
   }
 };
@@ -91,6 +96,7 @@ exports.deleteSkill = async (req, res, next) => {
 
     // Why: Authorization is now handled by middleware, so we can directly delete
     await skill.deleteOne();
+    await cache.delByPattern('skill*');
     res.status(204).json({ status: 'success', data: null });
   } catch (error) {
     next(error);
@@ -111,16 +117,24 @@ exports.getExperiences = async (req, res, next) => {
 // @access  Public
 exports.getExperience = async (req, res, next) => {
   try {
+    const cacheKey = cache.buildKey('experience', { id: req.params.id });
+    const cached = await cache.get(cacheKey);
+    if (cached) {
+      return res.status(200).json(cached);
+    }
+
     const experience = await Experience.findById(req.params.id);
 
     if (!experience) {
       return next(new ErrorResponse(`Experience not found with id of ${req.params.id}`, 404));
     }
 
-    res.status(200).json({
+    const response = {
       status: 'success',
       data: experience,
-    });
+    };
+    cache.set(cacheKey, response, 1800);
+    res.status(200).json(response);
   } catch (error) {
     next(error);
   }
@@ -133,6 +147,7 @@ exports.createExperience = async (req, res, next) => {
   try {
     req.body.user = req.user.id;
     const experience = await Experience.create(req.body);
+    await cache.delByPattern('experience*'); 
     res.status(201).json({ status: 'success', data: experience });
   } catch (error) {
     next(error);
@@ -144,18 +159,17 @@ exports.createExperience = async (req, res, next) => {
 // @access  Private (Owner/Admin only - enforced by middleware)
 exports.updateExperience = async (req, res, next) => {
   try {
-    // Why: Authorization is now handled by middleware, so we can directly update
-    const experience = await Experience.findByIdAndUpdate(req.params.id, req.body, { 
-      new: true, 
-      runValidators: true 
+    const experience = await Experience.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
     });
 
     if (!experience) {
       return next(new ErrorResponse(`Experience not found with id of ${req.params.id}`, 404));
     }
 
-    res.status(200).json({ status: 'success', data: experience });
-  } catch (error) {
+    await cache.delByPattern('experience*'); 
+    res.status(200).json({ status: 'success', data: experience });  } catch (error) {
     next(error);
   }
 };
@@ -171,8 +185,8 @@ exports.deleteExperience = async (req, res, next) => {
       return next(new ErrorResponse(`Experience not found with id of ${req.params.id}`, 404));
     }
 
-    // Why: Authorization is now handled by middleware, so we can directly delete
     await experience.deleteOne();
+    await cache.delByPattern('experience*');
     res.status(204).json({ status: 'success', data: null });
   } catch (error) {
     next(error);
