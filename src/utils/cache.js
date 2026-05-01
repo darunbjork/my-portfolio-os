@@ -1,4 +1,3 @@
-// src/utils/cache.js
 const Redis = require('ioredis');
 
 let client;
@@ -24,13 +23,19 @@ const connectCache = async () => {
 const memoryCache = new Map();
 
 const getCache = async () => {
+  const redisUrl = process.env.REDIS_URL;
+  if (!redisUrl) {
+    // If REDIS_URL is not set, always use in-memory cache
+    return null;
+  }
+
   try {
     const redis = await connectCache();
     // Test connection
     await redis.ping();
     return redis;
   } catch (err) {
-    console.warn('Redis not available, using in-memory cache');
+    console.warn('Redis not available or connection failed, using in-memory cache:', err.message);
     return null;
   }
 };
@@ -56,7 +61,7 @@ const cache = {
         data: stringValue,
         expires: Date.now() + ttl * 1000,
       });
-      // Clean up old entries periodically
+      // * Clean up old entries periodically
       if (memoryCache.size > 1000) {
         const now = Date.now();
         for (const [k, v] of memoryCache.entries()) {
@@ -80,7 +85,7 @@ const cache = {
   async delByPattern(pattern) {
     const redis = await getCache();
     if (!redis) {
-      // In-memory: simple prefix match
+      // * In-memory: simple prefix match
       for (const key of memoryCache.keys()) {
         if (key.startsWith(pattern.replace('*', ''))) {
           memoryCache.delete(key);
@@ -88,7 +93,7 @@ const cache = {
       }
       return;
     }
-    // Use SCAN to avoid blocking
+    // ! Use SCAN to avoid blocking
     const stream = redis.scanStream({ match: pattern });
     for await (const keys of stream) {
       if (keys.length) {
@@ -97,9 +102,9 @@ const cache = {
     }
   },
 
-  // Generate a standard cache key for a resource
+  // TODO: Generate a standard cache key for a resource
   buildKey(resource, params = {}) {
-    // For lists, include pagination/sorting fields
+    // * For lists, include pagination/sorting fields
     if (params.page || params.sort) {
       const parts = [`${resource}:list`];
       if (params.page) parts.push(`page:${params.page}`);
@@ -115,4 +120,13 @@ const cache = {
   }
 };
 
-module.exports = cache;
+module.exports = {
+  ...cache,
+  getClient: () => client,
+  async disconnect() {
+    if (client && client.connected) {
+      await client.quit();
+      client = null;
+    }
+  }
+};

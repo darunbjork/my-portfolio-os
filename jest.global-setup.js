@@ -17,6 +17,9 @@ module.exports = async () => {
   // Set the MONGO_URI for tests to use the in-memory server
   process.env.MONGO_URI = uri;
 
+  // Explicitly unset REDIS_URL for tests to force in-memory cache fallback
+  process.env.REDIS_URL = '';
+
   // Provide fallback values for other secrets if they are not in .env.test
   // This is good practice in case .env.test is missing some variables locally.
   process.env.JWT_SECRET = process.env.JWT_SECRET || 'default_test_jwt_secret_fallback';

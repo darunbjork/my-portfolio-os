@@ -1,6 +1,5 @@
-// src/controllers/profileController.js
 const Profile = require('../models/Profile');
-const User = require('../models/User'); // Import User model
+const User = require('../models/User');
 const ErrorResponse = require('../utils/errorResponse');
 
 // @desc    Get current user's profile
@@ -8,24 +7,20 @@ const ErrorResponse = require('../utils/errorResponse');
 // @access  Public (for owner's profile)
 exports.getProfile = async (req, res, next) => {
   try {
-    // Find the user with the 'owner' role
     const ownerUser = await User.findOne({ role: 'owner' });
 
     if (!ownerUser) {
-      return res.status(200).json({ success: true, data: [] }); // No owner found
+      return res.status(200).json({ success: true, data: [] }); 
     }
 
-    // Find the profile associated with the owner user
     const profile = await Profile.findOne({ user: ownerUser._id }).populate({
       path: 'user',
       select: 'email'
     });
 
     if (!profile) {
-      return res.status(200).json({ success: true, data: [] }); // Owner found, but no profile created yet
+      return res.status(200).json({ success: true, data: [] }); 
     }
-
-    // If profile found, return it as an array (as frontend expects)
     const profileWithFullImageUrl = {
       ...profile.toObject(),
     };
@@ -49,7 +44,6 @@ exports.createProfile = async (req, res, next) => {
     console.log('createProfile: req.user:', req.user);
     console.log('createProfile: req.body:', req.body);
 
-    // Check if profile already exists for this user
     let profile = await Profile.findOne({ user: req.user.id });
 
     if (profile) {
@@ -57,7 +51,6 @@ exports.createProfile = async (req, res, next) => {
       return next(new ErrorResponse('Profile already exists for this user. Use PUT to update.', 400));
     }
 
-    // Add user to req.body
     req.body.user = req.user.id;
     console.log('createProfile: req.body after adding user:', req.body);
 
@@ -121,7 +114,6 @@ exports.deleteProfile = async (req, res, next) => {
       return next(new ErrorResponse(`Profile not found with id of ${req.params.id}`, 404));
     }
 
-    // Make sure user is profile owner
     if (profile.user.toString() !== req.user.id && req.user.role !== 'owner') {
       return next(new ErrorResponse(`User ${req.user.id} is not authorized to delete this profile`, 401));
     }

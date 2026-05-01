@@ -14,7 +14,6 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, Postman)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
@@ -29,10 +28,8 @@ app.use(cors({
 
 app.use(express.json());
 
-// Serve static files from the 'uploads' directory
 app.use('/uploads', express.static('uploads'));
 
-// Health check endpoint (important for Render)
 app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
@@ -41,20 +38,17 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Basic Root Route
 app.get('/', (req, res) => {
   res.send('Welcome to My Production Portfolio OS Backend!');
 });
 
-// API Routes
 const authRouter = require('./api/auth');
 const projectRouter = require('./api/projects');
 const infoRouter = require('./api/info');
 const profileRouter = require('./api/profile');
-const uploadRouter = require('./api/upload'); // New: Upload router
+const uploadRouter = require('./api/upload');
 const learningRouter = require('./api/learning');
 
-// New: Create uploads directory if it doesn't exist
 const fs = require('fs');
 const path = require('path');
 const uploadsDir = path.join(__dirname, '../uploads');
@@ -69,7 +63,6 @@ app.use('/api/v1/profile', profileRouter);
 app.use('/api/v1/upload', uploadRouter); 
 app.use('/api/v1/learning', learningRouter); 
 
-// Database connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB Connected'))
   .catch(err => console.error('MongoDB connection error:', err));

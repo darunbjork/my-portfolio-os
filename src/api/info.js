@@ -1,6 +1,3 @@
-// src/api/info.js
-// Why: This router groups routes for Skills and Experience, keeping the server file clean.
-
 const express = require('express');
 const {
   getSkills,
@@ -21,24 +18,22 @@ const Experience = require('../models/Experience');
 
 const router = express.Router();
 
-// --- Skills Routes ---
 router.route('/skills')
-  .get(advancedResults(Skill), getSkills) // Public read access
-  .post(protect, requireOwnerOrAdmin, createSkill); // Only owner/admin can create skills
+  .get(advancedResults(Skill), getSkills) 
+  .post(protect, requireOwnerOrAdmin, createSkill); 
 
 router.route('/skills/:id')
   .get(getSkill)
-  .put(protect, requireOwnerOrAdmin, updateSkill)   // Only owner/admin can update skills
-  .delete(protect, requireOwnerOrAdmin, deleteSkill); // Only owner/admin can delete skills
+  .put(protect, requireOwnerOrAdmin, updateSkill)  
+  .delete(protect, requireOwnerOrAdmin, deleteSkill); 
 
-// --- Experience Routes ---
 router.route('/experience')
-  .get(advancedResults(Experience), getExperiences) // Public read access
-  .post(protect, requireOwnerOrAdmin, createExperience); // Only owner/admin can create experience
+  .get(advancedResults(Experience), getExperiences) 
+  .post(protect, requireOwnerOrAdmin, createExperience); 
 
 router.route('/experience/:id')
   .get(getExperience)
-  .put(protect, requireOwnerOrAdmin, updateExperience)   // Only owner/admin can update experience
-  .delete(protect, requireOwnerOrAdmin, deleteExperience); // Only owner/admin can delete experience
+  .put(protect, requireOwnerOrAdmin, updateExperience)  
+  .delete(protect, requireOwnerOrAdmin, deleteExperience);
 
 module.exports = router;

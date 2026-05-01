@@ -1,9 +1,5 @@
-// src/controllers/authController.js
-// Why: This controller handles the business logic for user authentication.
-// It separates the route definition from the core logic, promoting modularity.
-
-const User = require('../models/User'); // Import the User Mongoose model
-const errorHandler = require('../middleware/errorHandler'); // We'll use this for structured errors
+const User = require('../models/User'); 
+const errorHandler = require('../middleware/errorHandler'); 
 const ErrorResponse = require('../utils/errorResponse');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
@@ -14,10 +10,8 @@ const sendEmail = require('../utils/sendEmail');
 // Why: This is an asynchronous function that handles the registration logic.
 // We use a try-catch block for robust error handling.
 exports.register = async (req, res, next) => {
-  const { email, password } = req.body; // Destructure email and password from the request body
+  const { email, password } = req.body;
 
-  // Why: Basic validation to ensure both fields are provided.
-  // This is the first line of defense against incomplete requests.
   if (!email || !password) {
     return res.status(400).json({ 
       status: 'error', 
@@ -26,7 +20,6 @@ exports.register = async (req, res, next) => {
     });
   }
 
-  // Why: Validate email format
   const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ 
@@ -36,7 +29,6 @@ exports.register = async (req, res, next) => {
     });
   }
 
-  // Why: Validate password length
   if (password.length < 6) {
     return res.status(400).json({ 
       status: 'error', 
@@ -46,8 +38,6 @@ exports.register = async (req, res, next) => {
   }
 
   try {
-    // Why: Check if user already exists BEFORE attempting to create
-    // This provides immediate, clear feedback instead of waiting for MongoDB error
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(409).json({
@@ -57,35 +47,24 @@ exports.register = async (req, res, next) => {
       });
     }
 
-    // Why: Check if this is the first user registration (portfolio owner)
     const existingUserCount = await User.countDocuments();
     
-    // Why: Create user data with role assignment
     const userData = {
-      email: email.toLowerCase(), // Normalize email to lowercase
+      email: email.toLowerCase(), 
       password,
-      // Why: First user becomes the portfolio owner, subsequent users are viewers
       role: existingUserCount === 0 ? 'owner' : 'viewer'
     };
 
-    // Why: Create a new user document using our Mongoose model.
-    // Mongoose will automatically hash the password via our 'pre-save' hook.
     const user = await User.create(userData);
 
-    // Why: Log important role assignments for security auditing
     if (userData.role === 'owner') {
       console.log(`Portfolio owner account created: ${email}`);
     } else {
       console.log(`New viewer account created: ${email}`);
     }
 
-    // Why: Respond with a success message and a token.
-    // Sending the token immediately allows the client to log in automatically.
     sendTokenResponse(user, 201, res);
   } catch (error) {
-    // Why: If user creation fails (e.g., unexpected database error), we pass the error
-    // to our central error handling middleware.
-    // The next() call is crucial here.
     next(error);
   }
 };
@@ -96,7 +75,6 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
 
-  // Why: Basic validation for login credentials.
   if (!email || !password) {
     return res.status(400).json({ 
       status: 'error', 
@@ -105,7 +83,6 @@ exports.login = async (req, res, next) => {
     });
   }
 
-  // Why: Validate email format
   const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ 
@@ -116,12 +93,8 @@ exports.login = async (req, res, next) => {
   }
 
   try {
-    // Why: Find the user by email, and explicitly select the password.
-    // Remember, we set 'select: false' on the password field in the schema,
-    // so we must explicitly ask for it here for comparison.
     const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
 
-    // Why: Check if the user exists.
     if (!user) {
       return res.status(401).json({ 
         status: 'error', 
@@ -130,8 +103,6 @@ exports.login = async (req, res, next) => {
       });
     }
 
-    // Why: Use our Mongoose instance method to compare the submitted password
-    // with the hashed password in the database.
     const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {
@@ -142,7 +113,6 @@ exports.login = async (req, res, next) => {
       });
     }
 
-    // Why: If credentials are valid, send a token response.
     sendTokenResponse(user, 200, res);
   } catch (error) {
     next(error);
@@ -153,12 +123,9 @@ exports.login = async (req, res, next) => {
 // @route   GET /api/v1/auth/me
 // @access  Private (we'll implement this access control tomorrow)
 exports.getMe = async (req, res, next) => {
-  // Why: This route will be protected. Once a token is verified, the user's data
-  // will be available on the request object. We'll simply send it back.
-  // For now, we'll return a placeholder.
   res.status(200).json({
     status: 'success',
-    data: req.user, // The 'req.user' object is available thanks to the 'protect' middleware 
+    data: req.user, 
   });
 };
 
@@ -169,7 +136,6 @@ exports.updateUserRole = async (req, res, next) => {
   const { role } = req.body;
   const { userId } = req.params;
 
-  // Why: Validate the role value
   if (!['owner', 'admin', 'viewer'].includes(role)) {
     return res.status(400).json({
       status: 'error',
@@ -178,7 +144,6 @@ exports.updateUserRole = async (req, res, next) => {
   }
 
   try {
-    // Why: Prevent demoting the last owner (system integrity)
     if (role !== 'owner') {
       const ownerCount = await User.countDocuments({ role: 'owner' });
       const targetUser = await User.findById(userId);
@@ -294,12 +259,10 @@ exports.forgotPassword = async (req, res, next) => {
       return next(new ErrorResponse('There is no user with that email', 404));
     }
 
-    // Get reset token
     const resetToken = user.getResetPasswordToken();
 
     await user.save({ validateBeforeSave: false });
 
-    // Create reset URL
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
     const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please click on the following link to reset your password: <br><br> <a href="${resetUrl}">${resetUrl}</a>`;
@@ -344,7 +307,6 @@ exports.resetPassword = async (req, res, next) => {
       return next(new ErrorResponse('Invalid token', 400));
     }
 
-    // Set new password
     user.password = req.body.password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
@@ -356,14 +318,9 @@ exports.resetPassword = async (req, res, next) => {
   }
 };
 
-// Why: A reusable function to create and send a JWT token in the response.
-// This prevents code duplication in our register and login functions.
-const sendTokenResponse = (user, statusCode, res) => {
-  // Why: Call the Mongoose instance method to get the signed token.
-  const token = user.getSignedJwtToken();
 
-  // Why: Send the token in the response.
-  // In a real app, you might also use cookies for more security.
+const sendTokenResponse = (user, statusCode, res) => {
+  const token = user.getSignedJwtToken();
   res.status(statusCode).json({
     status: 'success',
     token,

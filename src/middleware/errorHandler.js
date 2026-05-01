@@ -20,18 +20,16 @@ const errorHandler = (err, req, res, next) => {
 
     let message = 'Duplicate field value entered';
     
-    // Check if it's a duplicate email (most common case)
     if (err.message.includes('email')) {
       message = 'An account with this email address already exists. Please use a different email or try logging in instead.';
     } else if (err.message.includes('username')) {
       message = 'This username is already taken. Please choose a different username.';
     } else {
-      // Extract the field name from the error for other cases
       const field = Object.keys(err.keyPattern)[0];
       message = `An account with this ${field} already exists. Please use a different ${field}.`;
     }
     
-    error = new ErrorResponse(message, 409); // 409 Conflict
+    error = new ErrorResponse(message, 409);
 
     const field = Object.keys(err.keyValue)[0];
     const value = err.keyValue[field];
