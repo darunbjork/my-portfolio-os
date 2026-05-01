@@ -5,8 +5,10 @@ This is the backend API for my full-stack portfolio system, built to showcase re
 Designed from the ground up for production, it features JWT-based authentication, Cloudinary file uploads, role-based access control, and RESTful endpoints for managing portfolio data (projects, skills, experience, and more).
 
 💡 Built with Node.js, Express, MongoDB, and Docker — fully tested, secure, and deployment-ready.
-📁 Project Structure
 
+## 📁 Project Structure
+
+```
 src/
 ├── api/          # Express route definitions
 ├── controllers/  # Business logic and service orchestration
@@ -14,33 +16,46 @@ src/
 ├── models/       # Mongoose schemas (User, Project, etc.)
 ├── utils/        # Helpers (token, logger, pagination, etc.)
 └── config/       # DB connection, Cloudinary, env configs
-🚀 Features
+```
 
-🔐 Authentication – JWT + bcrypt with role-based access (user, admin)
-🔑 Password Reset – Secure forgot/reset password flow via email
-📦 File Uploads – Cloudinary integration (images for projects)
-🧠 Data Models – Users, Projects, Profiles, Skills
-🧪 Testing – Jest + Supertest with coverage for all critical flows
-🛡️ Security Best Practices – Helmet, CORS, rate limiting, input validation
-🧩 Modular Codebase – Built for clarity, testability, and long-term scaling
-🧪 API Endpoints
+## 🚀 Features
 
-🔐 Auth
+*   **🔐 Authentication** – JWT + bcrypt with role-based access (user, admin)
+*   **🔑 Password Reset** – Secure forgot/reset password flow via email
+*   **📦 File Uploads** – Cloudinary integration (images for projects)
+*   **🧠 Data Models** – Users, Projects, Profiles, Skills
+*   **🧪 Testing** – Jest + Supertest with coverage for all critical flows
+*   **🛡️ Security Best Practices** – Helmet, CORS, rate limiting, input validation
+*   **🧩 Modular Codebase** – Built for clarity, testability, and long-term scaling
 
-POST /api/auth/register # Register user POST /api/auth/login # Login & return token POST /api/auth/me # Get current logged-in user (protected) POST /api/v1/auth/forgotpassword # Request password reset link PUT /api/v1/auth/resetpassword/:resettoken # Reset password with token
+## 🧪 API Endpoints
 
-🧱 Projects
+### 🔐 Auth
 
-GET /api/projects # Public list of all projects POST /api/projects # Create (admin-only) GET /api/projects/:id # Get single project PUT /api/projects/:id # Update (admin-only) DELETE /api/projects/:id # Delete (admin-only)
+*   `POST /api/auth/register` # Register user
+*   `POST /api/auth/login` # Login & return token
+*   `POST /api/auth/me` # Get current logged-in user (protected)
+*   `POST /api/v1/auth/forgotpassword` # Request password reset link
+*   `PUT /api/v1/auth/resetpassword/:resettoken` # Reset password with token
 
-👤 Profiles
+### 🧱 Projects
 
-GET /api/profiles/:userId # Get user profile PUT /api/profiles/:userId # Update profile (protected)
+*   `GET /api/projects` # Public list of all projects
+*   `POST /api/projects` # Create (admin-only)
+*   `GET /api/projects/:id` # Get single project
+*   `PUT /api/projects/:id` # Update (admin-only)
+*   `DELETE /api/projects/:id` # Delete (admin-only)
 
-🧬 Data Models
+### 👤 Profiles
 
-🔹 User
+*   `GET /api/profiles/:userId` # Get user profile
+*   `PUT /api/profiles/:userId` # Update profile (protected)
 
+## 🧬 Data Models
+
+### 🔹 User
+
+```json
 {
   "name": "String",
   "email": "String",
@@ -48,8 +63,11 @@ GET /api/profiles/:userId # Get user profile PUT /api/profiles/:userId # Update 
   "role": "'user' | 'admin'",
   "createdAt": "Date"
 }
-🔹 Project
+```
 
+### 🔹 Project
+
+```json
 {
   "title": "String",
   "description": "String",
@@ -61,16 +79,20 @@ GET /api/profiles/:userId # Get user profile PUT /api/profiles/:userId # Update 
   "user": "ObjectId (ref: 'User')",
   "createdAt": "Date"
 }
-⚙️ Setup & Development
+```
 
-✅ Prerequisites
+## ⚙️ Setup & Development
 
-Node.js v18+
-MongoDB 4.4+
-Cloudinary account
-Docker (optional)
-📦 Environment Variables
+### ✅ Prerequisites
 
+*   Node.js v18+
+*   MongoDB 4.4+
+*   Cloudinary account
+*   Docker (optional)
+
+### 📦 Environment Variables
+
+```
 NODE_ENV=development
 PORT=3000
 MONGO_URI=mongodb://localhost:27017/portfolio
@@ -81,62 +103,88 @@ FROM_EMAIL=myportfolio985@gmail.com # Must be a verified sender in SendGrid
 CLOUDINARY_CLOUD_NAME=your-name
 CLOUDINARY_API_KEY=your-key
 CLOUDINARY_API_SECRET=your-secret
-💻 Local Development
+```
+
+### 💻 Local Development
 
 Clone the repo
 
+```bash
 git clone https://github.com/darunbjork/my-portfolio-os.git
 cd my-portfolio-os
+```
+
 Install dependencies
 
+```bash
 npm install
+```
+
 Set up environment
 
+```bash
 cp .env.example .env
+```
+
 Start dev server
 
+```bash
 npm run dev
+```
+
 Run tests
 
+```bash
 npm test
-🐳 Dockerized Workflow
+```
+
+### 🐳 Dockerized Workflow
 
 Build and run
 
+```bash
 docker-compose up --build
+```
+
 Run tests inside container
 
+```bash
 docker-compose exec app npm test
-🧪 Testing
+```
 
-npm test – Run all tests
-npm run test:coverage – See code coverage
-npm test -- --coverage – Run all tests with coverage (recommended for full report)
-npm test -- user.test.js – Run single test file
+## 🧪 Testing
+
+*   `npm test` – Run all tests
+*   `npm run test:coverage` – See code coverage
+*   `npm test -- --coverage` – Run all tests with coverage (recommended for full report)
+*   `npm test -- user.test.js` – Run single test file
+
 Test coverage includes:
 
-Authentication workflows
-Project CRUD
-Profile updates
-Middleware & edge cases
-File uploads
-Validation errors
-🔐 Security Checklist
+*   Authentication workflows
+*   Project CRUD
+*   Profile updates
+*   Middleware & edge cases
+*   File uploads
+*   Validation errors
 
-✅ JWT with expiration & refresh strategy
-✅ Bcrypt hashing with salt
-✅ Helmet for secure HTTP headers
-✅ CORS config
-✅ Rate limiting for auth endpoints
-✅ Centralized error handling
-✅ Input validation (Mongoose + custom logic)
-📈 Performance Optimizations
+## 🔐 Security Checklist
 
-🗃️ MongoDB Indexing – On user ID, project slugs
-📄 Pagination Middleware – advancedResults utility
-🖼️ CDN Uploads – Direct Cloudinary integration
-🧹 Zero Server Storage – No disk images saved
-🔍 Custom Error Classes – Centralized and clean
+*   ✅ JWT with expiration & refresh strategy
+*   ✅ Bcrypt hashing with salt
+*   ✅ Helmet for secure HTTP headers
+*   ✅ CORS config
+*   ✅ Rate limiting for auth endpoints
+*   ✅ Centralized error handling
+*   ✅ Input validation (Mongoose + custom logic)
+
+## 📈 Performance Optimizations
+
+*   🗃️ MongoDB Indexing – On user ID, project slugs
+*   📄 Pagination Middleware – `advancedResults` utility
+*   🖼️ CDN Uploads – Direct Cloudinary integration
+*   🧹 Zero Server Storage – No disk images saved
+*   🔍 Custom Error Classes – Centralized and clean
 
 ## ✨ Cache Integration (Redis)
 
@@ -144,19 +192,20 @@ To boost performance and reduce database load, a robust caching layer using Redi
 
 **Key aspects of the cache integration include:**
 
--   **Redis with Docker Compose**: Redis is now part of the `docker-compose.yml` setup, running as a service and using a persistent volume.
--   **`ioredis` Client**: The `ioredis` Node.js client handles communication with the Redis server.
--   **`src/utils/cache.js` Utility**: A custom cache utility provides methods for `get`, `set`, `del`, `delByPattern`, and intelligent `buildKey` generation based on resource and query parameters. An in-memory fallback ensures functionality during development or if Redis is unavailable.
--   **`advancedResults` Middleware Integration**: List endpoints utilizing `advancedResults` middleware now automatically check the cache for results, storing them for 1 hour if not found.
--   **Single-Item Caching**: Individual GET requests for `Project`, `Skill`, `Experience`, and `LearningItem` are cached for 30 minutes.
--   **Cache Invalidation**: Create, Update, and Delete (CUD) operations for `Project`, `Skill`, `Experience`, and `LearningItem` models trigger pattern-based cache invalidation (`cache.delByPattern('<resource>*')`), ensuring data freshness.
--   **Environment Variables**: `REDIS_URL` has been added to `.env.example` and configured in `docker-compose.yml` for the `web` service.
--   **Test Environment Cleanup**: The `jest.global-teardown.js` file was updated to call `cache.disconnect()` at the end of the test suite. This ensures that any open Redis connections are gracefully closed, allowing the Jest process to exit without hanging.
+*   **Redis with Docker Compose**: Redis is now part of the `docker-compose.yml` setup, running as a service and using a persistent volume.
+*   **`ioredis` Client**: The `ioredis` Node.js client handles communication with the Redis server.
+*   **`src/utils/cache.js` Utility**: A custom cache utility provides methods for `get`, `set`, `del`, `delByPattern`, and intelligent `buildKey` generation based on resource and query parameters. An in-memory fallback ensures functionality during development or if Redis is unavailable.
+*   **`advancedResults` Middleware Integration**: List endpoints utilizing `advancedResults` middleware now automatically check the cache for results, storing them for 1 hour if not found.
+*   **Single-Item Caching**: Individual GET requests for `Project`, `Skill`, `Experience`, and `LearningItem` are cached for 30 minutes.
+*   **Cache Invalidation**: Create, Update, and Delete (CUD) operations for `Project`, `Skill`, `Experience`, and `LearningItem` models trigger pattern-based cache invalidation (`cache.delByPattern('<resource>*')`), ensuring data freshness.
+*   **Environment Variables**: `REDIS_URL` has been added to `.env.example` and configured in `docker-compose.yml` for the `web` service.
+*   **Test Environment Cleanup**: The `jest.global-teardown.js` file was updated to call `cache.disconnect()` at the end of the test suite. This ensures that any open Redis connections are gracefully closed, allowing the Jest process to exit without hanging.
 
-🚀 Deployment
+## 🚀 Deployment
 
-🔐 Production .env
+### 🔐 Production .env
 
+```
 NODE_ENV=production
 PORT=5000
 MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/portfolio
@@ -165,40 +214,50 @@ JWT_EXPIRE=7d
 CLOUDINARY_CLOUD_NAME=your-name
 CLOUDINARY_API_KEY=xxx
 CLOUDINARY_API_SECRET=xxx
-🔧 Docker Production
+```
+
+### 🔧 Docker Production
 
 Build image
 
+```bash
 docker build -t portfolio-api .
+```
+
 Run it
 
+```bash
 docker run --env-file .env.production -p 5000:5000 portfolio-api
-📘 API Documentation
+```
 
-Interactive Swagger UI available at: http://localhost:3000/api/docs
+## 📘 API Documentation
 
-🧠 Roadmap
+Interactive Swagger UI available at: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
 
- Auth + RBAC
- Projects CRUD + Uploads
- CI-ready Docker setup
- Test suite with coverage
- Admin-only dashboard auth
- Image resizing (Sharp or Cloudinary presets)
- CI/CD with GitHub Actions
- Integrate error reporting (Sentry or LogRocket)
-🤝 Contributing
+## 🧠 Roadmap
 
-Fork the repo
-Create a branch: git checkout -b feature/my-feature
-Commit: git commit -m 'Add my feature'
-Push: git push origin feature/my-feature
-Open a pull request
-🧾 License
+*   Auth + RBAC
+*   Projects CRUD + Uploads
+*   CI-ready Docker setup
+*   Test suite with coverage
+*   Admin-only dashboard auth
+*   Image resizing (Sharp or Cloudinary presets)
+*   CI/CD with GitHub Actions
+*   Integrate error reporting (Sentry or LogRocket)
+
+## 🤝 Contributing
+
+*   Fork the repo
+*   Create a branch: `git checkout -b feature/my-feature`
+*   Commit: `git commit -m 'Add my feature'`
+*   Push: `git push origin feature/my-feature`
+*   Open a pull request
+
+## 🧾 License
 
 MIT © 2025 Darun Bjork See LICENSE for details.
 
-🙌 Author
+## 🙌 Author
 
 Darun .A Mustafa GitHub | LinkedIn | Stockholm, Sweden 🇸🇪
 
