@@ -1,13 +1,12 @@
-# Cache Implementation - Step 4: Integrate Cache with Advanced Results Middleware
+# Cache Implementation - Step 5: Cache Single-Item GET Endpoints (Project)
 
-I have modified the `src/middleware/advancedResults.js` file to integrate the caching mechanism. This means that any API endpoint that uses this middleware will now automatically check the cache before querying the database, and store the results in the cache after a successful query.
+I have implemented caching for single-item GET endpoints, specifically for the `getProject` function in `src/controllers/projectController.js`. This enhancement ensures that individual project data is also served from the cache, further reducing database queries for frequently accessed items.
 
-**Key Changes:**
--   **Import `cache` utility:** The `cache` module from `src/utils/cache.js` is now imported.
--   **Cache Key Generation:** A unique cache key is generated based on the model name and request query parameters (page, limit, sort, select, filters).
--   **Cache Hit:** Before executing the database query, the middleware checks if the data exists in the cache. If found, it immediately returns the cached data, significantly speeding up response times and reducing database load.
--   **Cache Miss:** If the data is not in the cache, the database query is executed as usual.
--   **Cache Set:** After the database query successfully retrieves data, the results are stored in the cache with a Time-To-Live (TTL) of 1 hour (3600 seconds) for future requests.
--   **Error Handling:** Cache read/write errors are caught and logged silently, ensuring that caching issues do not prevent the application from serving data from the database.
+**Key Changes in `getProject`:**
+-   **Import `cache` utility:** The `cache` module is now imported into the controller.
+-   **Cache Key Generation:** A cache key is generated using `cache.buildKey('project', { id: req.params.id })` to uniquely identify each project based on its ID.
+-   **Cache Hit for Single Item:** Before fetching from the database, the function checks if the specific project data is in the cache. If it is, the cached data is returned immediately.
+-   **Cache Miss and Set:** If the project is not in the cache, it is fetched from the database. Upon successful retrieval, the data is stored in the cache with a Time-To-Live (TTL) of 30 minutes (1800 seconds) to balance freshness with performance.
+-   **Error Handling:** Cache-related errors are handled gracefully, preventing them from disrupting the application's core functionality.
 
-This integration provides automatic caching for all list endpoints that utilize `advancedResults` without requiring changes to individual controllers.
+This step extends the caching benefits to individual project views, improving responsiveness and database efficiency for these common read operations. The same pattern can now be applied to other single-item GET endpoints like skills, experiences, and learning items.

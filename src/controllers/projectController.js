@@ -1,7 +1,6 @@
-// src/controllers/projectController.js
-
 const Project = require('../models/Project');
-const ErrorResponse = require('../utils/errorResponse'); // Import our custom error class
+const ErrorResponse = require('../utils/errorResponse'); 
+const cache = require('../utils/cache');
 
 // @desc    Get all projects
 // @route   GET /api/v1/projects
@@ -15,31 +14,39 @@ exports.getProjects = async (req, res, next) => {
 // @access  Public
 exports.getProject = async (req, res, next) => {
   try {
-    const project = await Project.findById(req.params.id).populate('user', 'email');
+    const cacheKey = cache.buildKey('project', { id: req.params.id });
+    const cached = await cache.get(cacheKey);
+    if (cached) {
+      // console.log('Cache hit for single project:', cacheKey);
+      return res.status(200).json(cached);
+    }
 
-    // Why: Use our new custom error class for 'not found' scenarios.
+    // console.log('Cache miss for single project:', cacheKey);
+    const project = await Project.findById(req.params.id).populate('user', 'email');
     if (!project) {
       return next(new ErrorResponse(`Project not found with id of ${req.params.id}`, 404));
     }
 
-    res.status(200).json({
+    const response = {
       status: 'success',
       data: project,
+    };
+    // Cache for 30 minutes (1800 seconds)
+    cache.set(cacheKey, response, 1800).catch((err) => {
+      // console.error('Cache write error for single project:', err);
     });
+    res.status(200).json(response);
   } catch (error) {
     next(error);
   }
 };
-
 // @desc    Create a new project
 // @route   POST /api/v1/projects
 // @access  Private (Owner/Admin only - enforced by middleware)
 exports.createProject = async (req, res, next) => {
   try {
-    // Why: Associate the project with the authenticated user
     req.body.user = req.user.id;
 
-    // If an imageUrl is provided, ensure it's a valid URL
     if (req.body.imageUrl && !/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/.test(req.body.imageUrl)) {
       return next(new ErrorResponse('Please provide a valid URL for the project image', 400));
     }
@@ -60,8 +67,6 @@ exports.createProject = async (req, res, next) => {
 // @access  Private (Owner/Admin only - enforced by middleware)
 exports.updateProject = async (req, res, next) => {
   try {
-    // Why: Authorization is now handled by middleware, so we can directly update
-    // If an imageUrl is provided, ensure it's a valid URL
     if (req.body.imageUrl && !/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/.test(req.body.imageUrl)) {
       return next(new ErrorResponse('Please provide a valid URL for the project image', 400));
     }
@@ -95,7 +100,6 @@ exports.deleteProject = async (req, res, next) => {
       return next(new ErrorResponse(`Project not found with id of ${req.params.id}`, 404));
     }
 
-    // Why: Authorization is now handled by middleware, so we can directly delete
     await project.deleteOne();
 
     res.setHeader('Content-Type', 'application/json');
