@@ -17,11 +17,9 @@ exports.getProject = async (req, res, next) => {
     const cacheKey = cache.buildKey('project', { id: req.params.id });
     const cached = await cache.get(cacheKey);
     if (cached) {
-      // console.log('Cache hit for single project:', cacheKey);
       return res.status(200).json(cached);
     }
 
-    // console.log('Cache miss for single project:', cacheKey);
     const project = await Project.findById(req.params.id).populate('user', 'email');
     if (!project) {
       return next(new ErrorResponse(`Project not found with id of ${req.params.id}`, 404));
@@ -31,9 +29,7 @@ exports.getProject = async (req, res, next) => {
       status: 'success',
       data: project,
     };
-    // Cache for 30 minutes (1800 seconds)
     cache.set(cacheKey, response, 1800).catch((err) => {
-      // console.error('Cache write error for single project:', err);
     });
     res.status(200).json(response);
   } catch (error) {
@@ -52,6 +48,8 @@ exports.createProject = async (req, res, next) => {
     }
 
     const project = await Project.create(req.body);
+
+    await cache.delByPattern('project*'); 
 
     res.status(201).json({
       status: 'success',
@@ -80,6 +78,8 @@ exports.updateProject = async (req, res, next) => {
       return next(new ErrorResponse(`Project not found with id of ${req.params.id}`, 404));
     }
 
+    await cache.delByPattern('project*'); 
+
     res.status(200).json({
       status: 'success',
       data: project,
@@ -101,6 +101,7 @@ exports.deleteProject = async (req, res, next) => {
     }
 
     await project.deleteOne();
+    await cache.delByPattern('project*');
 
     res.setHeader('Content-Type', 'application/json');
     res.status(200).send(JSON.stringify({ status: 'success', message: 'Project deleted successfully' }));
