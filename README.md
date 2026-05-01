@@ -1,8 +1,7 @@
-# Cache Implementation - Step 1: Docker Compose Update
+# Cache Implementation - Step 2: Install Redis Client
 
-I have updated the `docker-compose.yml` file to include a Redis service. This sets up Redis to run alongside your application, allowing for caching capabilities.
+I have installed the `ioredis` package using npm. This package is a robust, performance-focused Redis client for Node.js, which will allow your application to connect and interact with the Redis cache.
 
 **Changes Made:**
-- Added a `redis` service definition.
-- Mapped port `6379` for Redis.
-- Created a `redis_data` volume for Redis persistence.
+- Executed `npm install ioredis`.
+- The `ioredis` package has been added to `package.json` and `package-lock.json`.
