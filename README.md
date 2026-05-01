@@ -111,6 +111,7 @@ docker-compose exec app npm test
 
 npm test – Run all tests
 npm run test:coverage – See code coverage
+npm test -- --coverage – Run all tests with coverage (recommended for full report)
 npm test -- user.test.js – Run single test file
 Test coverage includes:
 
