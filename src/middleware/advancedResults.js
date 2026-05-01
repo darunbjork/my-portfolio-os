@@ -1,18 +1,15 @@
-// src/middleware/advancedResults.js
-// Why: This middleware provides reusable functionality for advanced queries like
-// filtering, sorting, pagination, and selecting specific fields.
-// It can be applied to any route that needs these features.
+const cache = require('../utils/cache');
 
 const advancedResults = (model, populate) => async (req, res, next) => {
   let query;
 
-  // 1. Copy the query parameters from the request
+  // * 1. Copy the query parameters from the request
   const reqQuery = { ...req.query };
 
-  // 2. Fields to exclude from the query processing
+  // * 2. Fields to exclude from the query processing
   const removeFields = ['select', 'sort', 'page', 'limit'];
 
-  // Why: Loop over removeFields and delete them from reqQuery.
+  // * Why: Loop over removeFields and delete them from reqQuery.
   // This ensures they are not used as filter fields.
   removeFields.forEach((param) => delete reqQuery[param]);
 
@@ -24,6 +21,29 @@ const advancedResults = (model, populate) => async (req, res, next) => {
   // Why: Use a regular expression to add a '$' to operators like gt, gte, in, etc.
   // Example: { "averageRating": { "gt": "4.5" } } becomes { "averageRating": { "$gt": "4.5" } }
   queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, (match) => `$${match}`);
+
+  // Build cache key from request
+  const cacheParams = {
+    page: req.query.page,
+    limit: req.query.limit,
+    sort: req.query.sort,
+    select: req.query.select,
+    filters: req.query, // includes any filter params like category=Frontend
+  };
+  const cacheKey = cache.buildKey(model.modelName.toLowerCase(), cacheParams);
+
+  try {
+    const cached = await cache.get(cacheKey);
+    if (cached) {
+      // console.log('Cache hit for:', cacheKey);
+      return res.status(200).json(cached);
+    }
+  } catch (err) {
+    // console.error('Cache read error:', err);
+    // Silently continue if cache fails
+  }
+  // console.log('Cache miss for:', cacheKey);
+
 
   // 5. Build the query
   // Why: Pass the parsed query string to Mongoose's find method.
@@ -59,10 +79,10 @@ const advancedResults = (model, populate) => async (req, res, next) => {
   // Why: Use .skip() and .limit() for pagination.
   query = query.skip(startIndex).limit(limit);
 
-  // 9. Population (optional)
+  // * 9. Population
   // Why: Check if a 'populate' option was passed to the middleware.
   if (populate) {
-    // If it's a string, use it. If it's an object, pass it to .populate().
+    // * If it's a string, use it. If it's an object, pass it to .populate().
     query = query.populate(populate);
   }
 
@@ -98,6 +118,11 @@ const advancedResults = (model, populate) => async (req, res, next) => {
     pagination,
     data: results,
   };
+
+  // Cache the response (TTL 1 hour for lists)
+  cache.set(cacheKey, res.advancedResults, 3600).catch((err) => {
+    // console.error('Cache write error:', err);
+  });
 
   next(); // Why: Call next() to proceed to the route handler.
 };
